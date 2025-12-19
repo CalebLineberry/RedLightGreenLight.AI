@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@clerk/nextjs": "^6.36.4",
     "express": "^5.2.1"
   }
 }
