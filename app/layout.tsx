@@ -1,4 +1,10 @@
 import './globals.css';
+import "../public/lib/bootstrap/css/bootstrap.min.css";
+import "../public/lib/font-awesome/css/font-awesome.min.css";
+import "../public/lib/animate/animate.min.css";
+import "../public/lib/ionicons/css/ionicons.min.css";
+import "../public/lib/owlcarousel/assets/owl.carousel.min.css";
+import "../public/lib/magnific-popup/magnific-popup.css";
 import type { Metadata } from "next";
 import {
   ClerkProvider,
@@ -42,14 +48,28 @@ export default function RootLayout({
             src="/lib/jquery/jquery.min.js"
             strategy="beforeInteractive"
           />
+          <Script src="/lib/jquery/jquery-migrate.min.js" strategy="beforeInteractive" />
           <Script
             src="/lib/bootstrap/js/bootstrap.bundle.min.js"
-            strategy="afterInteractive"
-          />
+          strategy="afterInteractive"
+        />
+        <Script src="/lib/easing/easing.min.js" strategy="afterInteractive" />
+        <Script src="/lib/superfish/hoverIntent.js" strategy="afterInteractive" />
+        <Script src="/lib/superfish/superfish.min.js" strategy="afterInteractive" />
+        <Script src="/lib/wow/wow.min.js" strategy="afterInteractive" />
+        <Script src="/lib/owlcarousel/owl.carousel.min.js" strategy="afterInteractive" />
+        <Script src="/lib/magnific-popup/magnific-popup.min.js" strategy="afterInteractive" />
+        <Script src="/lib/sticky/sticky.js" strategy="afterInteractive" />
+        <Script
+  src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`}
+  strategy="afterInteractive"
+/>
           <Script
             src="/js/main.js"
             strategy="afterInteractive"
           />
+          
+
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
