@@ -1093,3 +1093,9 @@ body.mobile-nav-active #mobile-nav-toggle {
 #footer .credits a {
   color: #C1121F;
 }
+.market-chart-wrapper {
+  width: 100%;
+  min-height: 420px;
+  border-radius: 8px;
+  overflow: hidden;
+}

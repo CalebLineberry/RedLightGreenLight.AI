@@ -1,5 +1,5 @@
 'use client';
-
+import MarketChart from '@/app/components/MarketChart';
 export default function HomePage() {
   return (
     <>
@@ -102,14 +102,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Services */}
-        <section id="services">
-          <div className="container">
-            <div className="section-header">
-              <h2>Services</h2>
-            </div>
-          </div>
-        </section>
+        {/* Market Ticker */}
+<section id="services">
+  <div className="container">
+    <div className="section-header">
+      <h2>Market Ticker</h2>
+    </div>
+
+    <div className="row justify-content-center">
+      <div className="col-lg-10">
+        <MarketChart symbol="SPY" />
+      </div>
+    </div>
+  </div>
+</section>
+
 
         {/* Team */}
         <section id="team" className="wow fadeInUp">
