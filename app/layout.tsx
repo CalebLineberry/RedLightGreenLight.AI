@@ -16,8 +16,8 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         variables: {
-          colorPrimary: "#2D6A4F",
-          colorBackground: "#000023",
+          colorPrimary: "#125419",
+          colorBackground: "#09031C",
           colorText: "#ededed",
           colorInputBackground: "#081e5b",
           colorInputText: "#ededed",
@@ -25,13 +25,13 @@ export default function RootLayout({
           fontFamily: "var(--font-geist-sans)",
         },
         elements: {
-          card: "shadow-lg border border-[#2D6A4F]",
-          headerTitle: "text-[#C1121F]",
+          card: "shadow-lg border border-[#125419]",
+          headerTitle: "text-[#810E1C]",
           headerSubtitle: "text-gray-400",
           socialButtonsBlockButton:
-            "border border-[#2D6A4F] hover:bg-[#2D6A4F]/20",
+            "border border-[#125419] hover:bg-[#125419]/20",
           formButtonPrimary:
-            "bg-[#2D6A4F] hover:bg-[#52B788] text-black font-semibold",
+            "bg-[#125419] hover:bg-[#52B788] text-black font-semibold",
         },
       }}
     >

@@ -147,12 +147,12 @@ export default function HomePage() {
                       <span>
                       <a
                           href={member.GitHub}
-                          style={{ borderRight: '1px solid #000023', paddingRight: '10px', marginRight: '10px', color: '#000023' }}
+                          style={{ borderRight: '1px solid #09031C', paddingRight: '10px', marginRight: '10px', color: '#09031C' }}
                         >
                           <i className="fa fa-github"></i>
                       </a>
 
-                      <a href={member.LinkedIn} style={{ color: '#000023' }}>
+                      <a href={member.LinkedIn} style={{ color: '#09031C' }}>
                           <i className="fa fa-linkedin"></i>
                       </a>
                       </span>
