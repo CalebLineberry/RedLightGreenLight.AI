@@ -14,15 +14,6 @@ export default function HomePage() {
             </a>
           </div>
           <AuthBar />
-          {/*
-          <div className="social-links float-right">
-            <a href="#" className="twitter"><i className="fa fa-twitter"></i></a>
-            <a href="#" className="facebook"><i className="fa fa-facebook"></i></a>
-            <a href="#" className="instagram"><i className="fa fa-instagram"></i></a>
-            <a href="#" className="google-plus"><i className="fa fa-google-plus"></i></a>
-            <a href="#" className="linkedin"><i className="fa fa-linkedin"></i></a>
-          </div>
-          */}
         </div>
       </section>
 
@@ -44,17 +35,7 @@ export default function HomePage() {
               <li><a href="#services">S&P 500</a></li>
               {/*<li><a href="#portfolio">Portfolio</a></li>*/} 
               <li><a href="#team">Room 225</a></li>
-              {/*
-              <li className="menu-has-children">
-                <a href="#">Drop Down</a>
-                <ul>
-                  <li><a href="#">Drop Down 1</a></li>
-                  <li><a href="#">Drop Down 3</a></li>
-                  <li><a href="#">Drop Down 4</a></li>
-                  <li><a href="#">Drop Down 5</a></li>
-                </ul>
-              </li> */}
-              <li><a href="#contact">Contact</a></li>
+              <li><a href="#contact">Disclamer</a></li>
             </ul>
           </nav>
         </div>
@@ -163,6 +144,17 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+        <section id="contact">
+          <div className='container'>
+            <div className='section-header'>
+              <h2>Disclamer</h2>
+            </div>
+            <div className="content" style={{textAlign: 'center', paddingBottom: '0px'}}>
+              <h3><i>Until we get our time machine working, this model is not definite.</i></h3>
+              <p>We are not liable for any financial mishaps should the model's predictions be wrong. <span>Please use cautiously.</span></p>
+            </div>    
           </div>
         </section>
       </main>
