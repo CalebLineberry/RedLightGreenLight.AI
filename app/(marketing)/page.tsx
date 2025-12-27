@@ -1,5 +1,6 @@
 'use client';
 import MarketChart from '@/app/components/MarketChart';
+import AuthBar from "@/app/components/AuthBar";
 export default function HomePage() {
   return (
     <>
@@ -12,6 +13,8 @@ export default function HomePage() {
               redlight.greenlight.ai@gmail.com
             </a>
           </div>
+          <AuthBar />
+          {/*
           <div className="social-links float-right">
             <a href="#" className="twitter"><i className="fa fa-twitter"></i></a>
             <a href="#" className="facebook"><i className="fa fa-facebook"></i></a>
@@ -19,6 +22,7 @@ export default function HomePage() {
             <a href="#" className="google-plus"><i className="fa fa-google-plus"></i></a>
             <a href="#" className="linkedin"><i className="fa fa-linkedin"></i></a>
           </div>
+          */}
         </div>
       </section>
 
