@@ -37,9 +37,10 @@ export default function HomePage() {
             <ul className="nav-menu">
               <li className="menu-active"><a href="#body">Home</a></li>
               <li><a href="#about">About Us</a></li>
-              <li><a href="#services">Services</a></li>
-              <li><a href="#portfolio">Portfolio</a></li>
-              <li><a href="#team">Team</a></li>
+              <li><a href="#services">S&P 500</a></li>
+              {/*<li><a href="#portfolio">Portfolio</a></li>*/} 
+              <li><a href="#team">Room 225</a></li>
+              {/*
               <li className="menu-has-children">
                 <a href="#">Drop Down</a>
                 <ul>
@@ -48,7 +49,7 @@ export default function HomePage() {
                   <li><a href="#">Drop Down 4</a></li>
                   <li><a href="#">Drop Down 5</a></li>
                 </ul>
-              </li>
+              </li> */}
               <li><a href="#contact">Contact</a></li>
             </ul>
           </nav>
@@ -59,12 +60,12 @@ export default function HomePage() {
       <section id="intro">
         <div className="intro-content">
           <h2>
-            Making <span>your ideas</span>
-            <br />happen!
+            Tomorrow's stock price
+            <br /><span>with AI</span>
           </h2>
           <div>
-            <a href="#about" className="btn-get-started scrollto">Get Started</a>
-            <a href="#portfolio" className="btn-projects scrollto">Our Projects</a>
+            <a href="#about" className="btn-get-started scrollto">About Our Model</a>
+            <a href="#portfolio" className="btn-projects scrollto">Find Stock Values</a>
           </div>
         </div>
 
@@ -88,14 +89,14 @@ export default function HomePage() {
                 <img src="/img/about-img.jpg" alt="" />
               </div>
               <div className="col-lg-6 content">
-                <h2>Lorem ipsum dolor sit amet, consectetur adipiscing</h2>
+                <h2>Don't overthink it. We already know whats next.</h2>
                 <h3>
-                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                  Our AI model was built, designed, and tested to predict future stock market values
                 </h3>
                 <ul>
                   <li><i className="ion-android-checkmark-circle"></i> Ullamco laboris nisi</li>
                   <li><i className="ion-android-checkmark-circle"></i> Duis aute irure dolor</li>
-                  <li><i className="ion-android-checkmark-circle"></i> Ullamco laboris nisi ut aliquip</li>
+                  <li><i className="ion-android-checkmark-circle"></i> No. It's not a ChatGPT wrapper.</li>
                 </ul>
               </div>
             </div>
@@ -106,7 +107,7 @@ export default function HomePage() {
 <section id="services">
   <div className="container">
     <div className="section-header">
-      <h2>Market Ticker</h2>
+      <h2>S&P 500 Ticker</h2>
     </div>
 
     <div className="row justify-content-center">
@@ -122,13 +123,13 @@ export default function HomePage() {
         <section id="team" className="wow fadeInUp">
           <div className="container">
             <div className="section-header">
-              <h2>Our Team</h2>
+              <h2>Room 225</h2>
             </div>
             <div className="row">
               {[
-                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.jpg' },
-                { name: 'Ethan Bostick', role: 'AI Architect', img: 'team-2.jpg' },
-                { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.jpg' },
+                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.jpg', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
+                { name: 'Ethan Bostick', role: 'AI Architect', img: 'team-2.png', GitHub: 'https://github.com/EthanBostick', LinkedIn: 'https://www.linkedin.com/in/ethan-bostick-466717378/' },
+                { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.png', GitHub: 'https://github.com/CalebLineberry', LinkedIn: 'https://www.linkedin.com/in/caleb-lineberry/'  },
               ].map(member => (
                 <div key={member.name} className="col-lg-4 col-md-6">
                   <div className="member">
@@ -138,7 +139,22 @@ export default function HomePage() {
                     <div className="details">
                       <h4>{member.name}</h4>
                       <span>{member.role}</span>
+                      
+                      <span>
+                      <a
+                          href={member.GitHub}
+                          style={{ borderRight: '1px solid #000023', paddingRight: '10px', marginRight: '10px', color: '#000023' }}
+                        >
+                          <i className="fa fa-github"></i>
+                      </a>
+
+                      <a href={member.LinkedIn} style={{ color: '#000023' }}>
+                          <i className="fa fa-linkedin"></i>
+                      </a>
+                      </span>
+
                     </div>
+                    
                   </div>
                 </div>
               ))}
