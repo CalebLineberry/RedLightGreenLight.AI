@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { shadcn } from "@clerk/themes";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,30 +15,14 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider
-      appearance={{
-        variables: {
-          colorPrimary: "#125419",
-          colorBackground: "#09031C",
-          colorText: "#ededed",
-          colorInputBackground: "#081e5b",
-          colorInputText: "#ededed",
-          borderRadius: "6px",
-          fontFamily: "var(--font-geist-sans)",
-        },
-        elements: {
-          card: "shadow-lg border border-[#125419]",
-          headerTitle: "text-[#810E1C]",
-          headerSubtitle: "text-gray-400",
-          socialButtonsBlockButton:
-            "border border-[#125419] hover:bg-[#125419]/20",
-          formButtonPrimary:
-            "bg-[#125419] hover:bg-[#52B788] text-black font-semibold",
-        },
-      }}
-    >
-      <html lang="en">
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
+  appearance={{
+   theme: shadcn,
+  }}
+>
+  <html lang="en">
+    <body>{children}</body>
+  </html>
+</ClerkProvider>
+
   );
 }

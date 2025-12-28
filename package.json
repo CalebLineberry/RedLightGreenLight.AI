@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.4",
+    "@clerk/themes": "^2.4.46",
     "cookie": "^1.1.1",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.0",

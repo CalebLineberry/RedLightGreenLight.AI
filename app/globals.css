@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import '@clerk/themes/shadcn.css';
 
 :root {
   --background: #ffffff;
