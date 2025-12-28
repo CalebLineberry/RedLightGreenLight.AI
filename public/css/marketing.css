@@ -177,7 +177,7 @@ h1, h2, h3, h4, h5, h6 {
 /*--------------------------------------------------------------
 # Intro Section
 --------------------------------------------------------------*/
-#intro {
+#home-intro {
   width: 100%;
   height: 60vh;
   position: relative;
@@ -185,7 +185,7 @@ h1, h2, h3, h4, h5, h6 {
   background-size: cover;
 }
 
-#intro .intro-content {
+#home-intro .intro-content {
   position: absolute;
   bottom: 0;
   top: 0;
@@ -199,18 +199,50 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
-#intro .intro-content h2 {
+#home-intro .intro-content h2 {
   color: #810E1C;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
   font-size: 64px;
   font-weight: 700;
 }
 
-#intro .intro-content h2 span {
+#home-intro .intro-content h2 span {
   color: #125419;
   text-decoration: underline;
 }
 
+#ticker-intro {
+  width: 100%;
+  height: 40vh;
+  position: relative;
+  background-size: cover;
+}
+
+#ticker-intro .intro-content {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+#ticker-intro .intro-content h2 {
+  color: #810E1C;
+  margin-bottom: 20px;
+  font-size: 64px;
+  font-weight: 700;
+}
+
+#ticker-intro .intro-content h2 span {
+  color: #125419;
+  text-decoration: underline;
+}
 @media (max-width: 767px) {
   #intro .intro-content h2 {
     font-size: 34px;

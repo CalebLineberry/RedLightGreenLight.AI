@@ -28,34 +28,46 @@ export default function TickersPage() {
             </h1>
           </div>
 
-          <nav id="nav-menu-container">
+          {/*<nav id="nav-menu-container">
             <ul className="nav-menu">
               <li className="menu-active"><a href="#body">Home</a></li>
               <li><a href="#about">About Us</a></li>
               <li><a href="#services">S&P 500</a></li>
-              {/*<li><a href="#portfolio">Portfolio</a></li>*/} 
+              {/*<li><a href="#portfolio">Portfolio</a></li>
               <li><a href="#team">Room 225</a></li>
               <li><a href="#contact">Disclamer</a></li>
             </ul>
-          </nav>
+          </nav> */}
         </div>
       </header>
 
       {/* Intro */}
-      <section id="intro">
+      <section id="ticker-intro">
         <div className="intro-content">
           <h2>
-            
-            <br /><span>with AI</span>
+            Lets see what
+            <br /><span>the future holds</span>
           </h2>
-          
         </div>
-
-        
       </section>
 
       <main id="main">
-        {/* About */}
+
+        <section id="search">
+            <div className="container">
+                <div className="section-header">
+                    <h3 style={{textAlign: 'center'}}><i>Enter a company:</i></h3>
+                    <label htmlFor="stock-symbol" style={{display: 'block', textAlign: 'center', marginBottom: '10px'}}>e.g. NVDA, AAPL, MSFT,  TSLA</label>
+                </div>
+                <div className="row justify-content-center">
+                    <div className="col-lg-6">
+                        <input type="text" id="stock-symbol" name="stock-symbol" className="form-control" placeholder="Enter stock symbol..." />
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        {/* About 
         <section id="about" className="wow fadeInUp">
           <div className="container">
             <div className="row">
@@ -75,9 +87,9 @@ export default function TickersPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        {/* Market Ticker */}
+        {/* Market Ticker 
 <section id="services">
   <div className="container">
     <div className="section-header">
@@ -90,51 +102,10 @@ export default function TickersPage() {
       </div>
     </div>
   </div>
-</section>
+</section> */}
 
 
-        {/* Team */}
-        <section id="team" className="wow fadeInUp">
-          <div className="container">
-            <div className="section-header">
-              <h2>Room 225</h2>
-            </div>
-            <div className="row">
-              {[
-                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.jpg', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
-                { name: 'Ethan Bostick', role: 'AI Architect', img: 'team-2.png', GitHub: 'https://github.com/EthanBostick', LinkedIn: 'https://www.linkedin.com/in/ethan-bostick-466717378/' },
-                { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.png', GitHub: 'https://github.com/CalebLineberry', LinkedIn: 'https://www.linkedin.com/in/caleb-lineberry/'  },
-              ].map(member => (
-                <div key={member.name} className="col-lg-4 col-md-6">
-                  <div className="member">
-                    <div className="pic">
-                      <img src={`/img/${member.img}`} alt={member.name} />
-                    </div>
-                    <div className="details">
-                      <h4>{member.name}</h4>
-                      <span>{member.role}</span>
-                      
-                      <span>
-                      <a
-                          href={member.GitHub}
-                          style={{ borderRight: '1px solid #09031C', paddingRight: '10px', marginRight: '10px', color: '#09031C' }}
-                        >
-                          <i className="fa fa-github"></i>
-                      </a>
-
-                      <a href={member.LinkedIn} style={{ color: '#09031C' }}>
-                          <i className="fa fa-linkedin"></i>
-                      </a>
-                      </span>
-
-                    </div>
-                    
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        
         <section id="contact">
           <div className='container'>
             <div className='section-header'>
@@ -142,7 +113,7 @@ export default function TickersPage() {
             </div>
             <div className="content" style={{textAlign: 'center', paddingBottom: '0px'}}>
               <h3><i>Until we get our time machine working, this model is not definite.</i></h3>
-              <p>We are not liable for any financial mishaps should the model's predictions be wrong. <span>Please use cautiously.</span></p>
+              <p>We are not liable for any financial mishaps should the model's predictions be wrong. <span><strong>Please use cautiously.</strong></span></p>
             </div>    
           </div>
         </section>
