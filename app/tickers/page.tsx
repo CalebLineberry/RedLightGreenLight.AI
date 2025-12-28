@@ -1,7 +1,7 @@
 'use client';
 import MarketChart from '@/app/components/MarketChart';
 import AuthBar from "@/app/components/AuthBar";
-export default function HomePage() {
+export default function TickersPage() {
   return (
     <>
       {/* Top Bar */}
@@ -45,24 +45,13 @@ export default function HomePage() {
       <section id="intro">
         <div className="intro-content">
           <h2>
-            Tomorrow's stock price
+            
             <br /><span>with AI</span>
           </h2>
-          <div>
-            <a href="#about" className="btn-get-started scrollto">About Our Model</a>
-            <a href="#portfolio" className="btn-projects scrollto">Find Stock Values</a>
-          </div>
+          
         </div>
 
-        <div id="intro-carousel" className="owl-carousel">
-          {[1,2,3,4,5].map(n => (
-            <div
-              key={n}
-              className="item"
-              style={{ backgroundImage: `url(/img/intro-carousel/${n}.jpg)` }}
-            />
-          ))}
-        </div>
+        
       </section>
 
       <main id="main">
