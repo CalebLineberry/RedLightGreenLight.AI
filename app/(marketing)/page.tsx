@@ -1,6 +1,7 @@
 'use client';
 import MarketChart from '@/app/components/MarketChart';
 import AuthBar from "@/app/components/AuthBar";
+import Link from "next/link";
 export default function HomePage() {
   return (
     <>
@@ -22,9 +23,9 @@ export default function HomePage() {
         <div className="container">
           <div id="logo" className="pull-left">
             <h1>
-              <a href="#body" className="scrollto">
+              <Link href="#body" className="scrollto">
                 RedLight<span>GreenLight</span>
-              </a>
+              </Link>
             </h1>
           </div>
 
@@ -42,7 +43,7 @@ export default function HomePage() {
       </header>
 
       {/* Intro */}
-      <section id="intro">
+      <section id="home-intro">
         <div className="intro-content">
           <h2>
             Tomorrow's stock price
@@ -50,7 +51,7 @@ export default function HomePage() {
           </h2>
           <div>
             <a href="#about" className="btn-get-started scrollto">About Our Model</a>
-            <a href="#portfolio" className="btn-projects scrollto">Find Stock Values</a>
+            <Link href="/tickers" className="btn-projects scrollto">Find Stock Values</Link>
           </div>
         </div>
 

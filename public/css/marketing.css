@@ -249,7 +249,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-#intro .intro-content .btn-get-started, #intro .intro-content .btn-projects {
+#home-intro .intro-content .btn-get-started, #home-intro .intro-content .btn-projects {
   font-family: "Raleway", sans-serif;
   font-size: 15px;
   font-weight: bold;
@@ -262,31 +262,31 @@ h1, h2, h3, h4, h5, h6 {
   color: #09031C;
 }
 
-#intro .intro-content .btn-get-started {
+#home-intro .intro-content .btn-get-started {
   background: #810E1C;
   border: 2px solid #810E1C;
 }
 
-#intro .intro-content .btn-get-started:hover {
+#home-intro .intro-content .btn-get-started:hover {
   background: none;
   color: #810E1C;
 }
 
-#intro .intro-content .btn-projects {
+#home-intro .intro-content .btn-projects {
   background: #125419;
   border: 2px solid #125419;
 }
 
-#intro .intro-content .btn-projects:hover {
+#home-intro .intro-content .btn-projects:hover {
   background: none;
   color: #125419;
 }
 
-#intro #intro-carousel {
+#home-intro #intro-carousel {
   z-index: 8;
 }
 
-#intro #intro-carousel::before {
+#home-intro #intro-carousel::before {
   content: '';
   background-color: rgba(5, 5, 11, 0.8);
   position: absolute;
@@ -299,7 +299,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 7;
 }
 
-#intro #intro-carousel .item {
+#home-intro #intro-carousel .item {
   width: 100%;
   height: 60vh;
   background-size: cover;

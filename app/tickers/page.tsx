@@ -1,6 +1,7 @@
 'use client';
 import MarketChart from '@/app/components/MarketChart';
 import AuthBar from "@/app/components/AuthBar";
+import Link from "next/link";
 export default function TickersPage() {
   return (
     <>
@@ -22,9 +23,9 @@ export default function TickersPage() {
         <div className="container">
           <div id="logo" className="pull-left">
             <h1>
-              <a href="#body" className="scrollto">
+              <Link href="/" className="scrollto">
                 RedLight<span>GreenLight</span>
-              </a>
+              </Link>
             </h1>
           </div>
 
