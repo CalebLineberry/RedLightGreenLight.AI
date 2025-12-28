@@ -20,13 +20,13 @@ body {
 # General
 --------------------------------------------------------------*/
 body {
-  background: #09031C;
+  background: #11192D;
   color: #444;
   font-family: "Open Sans", sans-serif;
 }
 
 a {
-  color: #125419;
+  color: #0F4314;
   transition: 0.5s;
 }
 
@@ -52,8 +52,8 @@ h1, h2, h3, h4, h5, h6 {
 .back-to-top {
   position: fixed;
   display: none;
-  background: #125419;
-  color: #09031C;
+  background: #0F4314;
+  color: #11192D;
   padding: 6px 12px 9px 12px;
   font-size: 16px;
   border-radius: 2px;
@@ -69,37 +69,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .back-to-top:focus {
-  background: #125419;
-  color: #09031C;
+  background: #0F4314;
+  color: #11192D;
   outline: none;
 }
 
 .back-to-top:hover {
-  background: #810E1C;
-  color: #09031C;
+  background: #6E0C18;
+  color: #11192D;
 }
 
 /*--------------------------------------------------------------
 # Top Bar
 --------------------------------------------------------------*/
 #topbar {
-  background: #09031C;
+  background: #181F36;
   padding: 10px 0;
-  border-bottom: 1px solid #125419;
+  border-bottom: 1px solid #242C4A;
   font-size: 14px;
 }
 
 #topbar .contact-info a {
   line-height: 3;
-  color: #555;
+  color: #9AA3B2;
 }
 
 #topbar .contact-info a:hover {
-  color: #125419;
+  color: #0F4314;
 }
 
 #topbar .contact-info i {
-  color: #125419;
+  color: #0F4314;
   padding: 4px;
 }
 
@@ -110,15 +110,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #topbar .social-links a {
-  color: #555;
+  color: #9AA3B2;
   padding: 4px 12px;
   display: inline-block;
   line-height: 1px;
-  border-left: 1px solid #125419;
+  border-left: 1px solid #0F4314;
 }
 
 #topbar .social-links a:hover {
-  color: #125419;
+  color: #0F4314;
 }
 
 #topbar .social-links a:first-child {
@@ -133,7 +133,7 @@ h1, h2, h3, h4, h5, h6 {
   height: 84px;
   transition: all 0.5s;
   z-index: 997;
-  background: #09031C;
+  background: #181F36;
   box-shadow: 0px 6px 9px 0px rgba(0, 0, 0, 0.06);
 }
 
@@ -147,13 +147,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #header #logo h1 a {
-  color: #810E1C;
+  color: #6E0C18;
   line-height: 1;
   display: inline-block;
 }
 
 #header #logo h1 a span {
-  color: #125419;
+  color: #E6E9EF;
 }
 
 #header #logo img {
@@ -200,15 +200,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #home-intro .intro-content h2 {
-  color: #810E1C;
+  color: #6E0C18;
   margin-bottom: 50px;
   font-size: 64px;
   font-weight: 700;
 }
 
 #home-intro .intro-content h2 span {
-  color: #125419;
-  text-decoration: underline;
+  color: #9AA3B2;
 }
 
 #ticker-intro {
@@ -233,14 +232,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #ticker-intro .intro-content h2 {
-  color: #810E1C;
+  color: #6E0C18;
   margin-bottom: 20px;
   font-size: 64px;
   font-weight: 700;
 }
 
 #ticker-intro .intro-content h2 span {
-  color: #125419;
+  color: #0F4314;
   text-decoration: underline;
 }
 @media (max-width: 767px) {
@@ -259,27 +258,27 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 2px;
   transition: 0.5s;
   margin: 10px;
-  color: #09031C;
+  color: #9AA3B2;
 }
 
 #home-intro .intro-content .btn-get-started {
-  background: #810E1C;
-  border: 2px solid #810E1C;
+  background: #181F36;
+  border: 2px solid #181F36;
 }
 
 #home-intro .intro-content .btn-get-started:hover {
   background: none;
-  color: #810E1C;
+  color: #6E0C18;
 }
 
 #home-intro .intro-content .btn-projects {
-  background: #125419;
-  border: 2px solid #125419;
+  background: #0F4314;
+  border: 2px solid #0F4314;
 }
 
 #home-intro .intro-content .btn-projects:hover {
   background: none;
-  color: #125419;
+  color: #0F4314;
 }
 
 #home-intro #intro-carousel {
@@ -385,7 +384,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 10px 8px;
   text-decoration: none;
   display: inline-block;
-  color: #555;
+  color: #9AA3B2;
   font-family: "Raleway", sans-serif;
   font-weight: 700;
   font-size: 14px;
@@ -393,7 +392,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-menu li:hover > a, .nav-menu > .menu-active > a {
-  color: #125419;
+  color: #E6E9EF;
 }
 
 .nav-menu > li {
@@ -404,7 +403,6 @@ h1, h2, h3, h4, h5, h6 {
   margin: 4px 0 0 0;
   padding: 10px;
   box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.25);
-  background: #09031C;
 }
 
 .nav-menu ul li {
@@ -421,7 +419,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-menu ul li:hover > a {
-  color: #125419;
+  color: #0F4314;
 }
 
 .nav-menu ul ul {
@@ -445,7 +443,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #mobile-nav-toggle i {
-  color: #555;
+  color: #9AA3B2;
 }
 
 @media (max-width: 768px) {
@@ -479,7 +477,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #mobile-nav ul li a {
-  color: #09031C;
+  color: #11192D;
   font-size: 16px;
   overflow: hidden;
   padding: 10px 22px 10px 15px;
@@ -491,7 +489,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #mobile-nav ul li a:hover {
-  color: #09031C;
+  color: #11192D;
 }
 
 #mobile-nav ul li li {
@@ -504,15 +502,15 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 99;
   padding: 15px;
   cursor: pointer;
-  color: #09031C;
+  color: #11192D;
 }
 
 #mobile-nav ul .menu-has-children i.fa-chevron-up {
-  color: #125419;
+  color: #0F4314;
 }
 
 #mobile-nav ul .menu-item-active {
-  color: #125419;
+  color: #0F4314;
 }
 
 #mobile-body-overly {
@@ -536,7 +534,7 @@ body.mobile-nav-active #mobile-nav {
 }
 
 body.mobile-nav-active #mobile-nav-toggle {
-  color: #09031C;
+  color: #11192D;
 }
 
 /*--------------------------------------------------------------
@@ -550,7 +548,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 
 .section-header h2 {
   font-size: 32px;
-  color: #810E1C;
+  color: #E6E9EF;
   text-transform: uppercase;
   font-weight: 700;
   position: relative;
@@ -563,7 +561,7 @@ body.mobile-nav-active #mobile-nav-toggle {
   display: block;
   width: 50px;
   height: 3px;
-  background: #125419;
+  background: #6E0C18;
   bottom: 0;
   left: 0;
 }
@@ -599,14 +597,14 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #about .content h2 {
-  color: #810E1C;
+  color: #6E0C18;
   font-weight: 700;
   font-size: 36px;
   font-family: "Raleway", sans-serif;
 }
 
 #about .content h3 {
-  color: #555;
+  color: #9AA3B2;
   font-weight: 300;
   font-size: 18px;
   line-height: 26px;
@@ -624,7 +622,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 #about .content i {
   font-size: 20px;
   padding-right: 4px;
-  color: #125419;
+  color: #0F4314;
 }
 
 #about .content ul {
@@ -646,7 +644,7 @@ body.mobile-nav-active #mobile-nav-toggle {
   padding: 40px;
   margin-bottom: 40px;
   box-shadow: 10px 10px 15px rgba(73, 78, 92, 0.1);
-  background: #09031C;
+  background: #11192D;
   transition: 0.4s;
 }
 
@@ -670,8 +668,8 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #services .box .icon i:before {
-  background: #810E1C;
-  background: linear-gradient(45deg, #125419 0%, #a3ebd5 100%);
+  background: #6E0C18;
+  background: linear-gradient(45deg, #0F4314 0%, #a3ebd5 100%);
   background-clip: border-box;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -742,13 +740,13 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #clients .owl-dot.active {
-  background-color: #125419;
+  background-color: #0F4314;
 }
 
 /* Our Portfolio Section
 --------------------------------*/
 #portfolio {
-  background: #09031C;
+  background: #11192D;
   padding: 30px 0;
 }
 
@@ -774,7 +772,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #portfolio .portfolio-item h2 {
-  color: #09031C;
+  color: #11192D;
   font-size: 24px;
   margin: 0;
   text-transform: capitalize;
@@ -829,7 +827,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 #testimonials .testimonial-item .testimonial-img {
   width: 90px;
   border-radius: 50%;
-  border: 4px solid #09031C;
+  border: 4px solid #11192D;
   margin: 0 auto;
 }
 
@@ -881,7 +879,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #testimonials .owl-dot.active {
-  background-color: #125419;
+  background-color: #0F4314;
 }
 
 /* Call To Action Section
@@ -893,13 +891,13 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #call-to-action .cta-title {
-  color: #09031C;
+  color: #11192D;
   font-size: 28px;
   font-weight: 700;
 }
 
 #call-to-action .cta-text {
-  color: #09031C;
+  color: #11192D;
 }
 
 @media (min-width: 769px) {
@@ -920,19 +918,19 @@ body.mobile-nav-active #mobile-nav-toggle {
   border-radius: 3px;
   transition: 0.5s;
   margin: 10px;
-  border: 3px solid #09031C;
-  color: #09031C;
+  border: 3px solid #11192D;
+  color: #11192D;
 }
 
 #call-to-action .cta-btn:hover {
-  background: #125419;
-  border: 3px solid #125419;
+  background: #0F4314;
+  border: 3px solid #0F4314;
 }
 
 /* Our Team Section
 --------------------------------*/
 #team {
-  background: #09031C;
+  background: #11192D;
   padding: 30px 0 0 0;
 }
 
@@ -951,8 +949,8 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #team .member .details {
-  background: #125419;
-  color: #09031C;
+  background: #181F36;
+  color: #9AA3B2;
   padding: 15px;
   border-radius: 0 0 3px 3px;
 }
@@ -974,7 +972,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #team .member .social a {
-  color: #09031C;
+  color: #242C4A;
 }
 
 #team .member .social i {
@@ -997,7 +995,7 @@ body.mobile-nav-active #mobile-nav-toggle {
   font-size: 48px;
   display: inline-block;
   margin-bottom: 10px;
-  color: #125419;
+  color: #0F4314;
 }
 
 #contact .contact-info address, #contact .contact-info p {
@@ -1018,7 +1016,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #contact .contact-info a:hover {
-  color: #125419;
+  color: #0F4314;
 }
 
 #contact .contact-address, #contact .contact-phone, #contact .contact-email {
@@ -1050,8 +1048,8 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #contact .form #sendmessage {
-  color: #125419;
-  border: 1px solid #125419;
+  color: #0F4314;
+  border: 1px solid #0F4314;
   display: none;
   text-align: center;
   padding: 15px;
@@ -1089,11 +1087,11 @@ body.mobile-nav-active #mobile-nav-toggle {
 }
 
 #contact .form button[type="submit"] {
-  background: #125419;
+  background: #0F4314;
   border: 0;
   border-radius: 3px;
   padding: 10px 30px;
-  color: #09031C;
+  color: #11192D;
   transition: 0.4s;
   cursor: pointer;
 }
@@ -1106,7 +1104,7 @@ body.mobile-nav-active #mobile-nav-toggle {
 # Footer
 --------------------------------------------------------------*/
 #footer {
-  background: #09031C;
+  background: #11192D;
   padding: 0 0 30px 0;
   font-size: 14px;
 }
@@ -1119,11 +1117,11 @@ body.mobile-nav-active #mobile-nav-toggle {
 #footer .credits {
   text-align: center;
   font-size: 13px;
-  color: #555;
+  color: #9AA3B2;
 }
 
 #footer .credits a {
-  color: #810E1C;
+  color: #6E0C18;
 }
 .market-chart-wrapper {
   width: 100%;
