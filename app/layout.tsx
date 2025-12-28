@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/themes";
+import { dark } from "@clerk/themes";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <ClerkProvider
   appearance={{
-   theme: shadcn,
+   theme: dark,
   }}
 >
   <html lang="en">
