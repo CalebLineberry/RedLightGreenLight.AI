@@ -113,7 +113,7 @@ export default function HomePage() {
             </div>
             <div className="row">
               {[
-                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.jpg', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
+                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.png', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
                 { name: 'Ethan Bostick', role: 'AI Architect', img: 'team-2.png', GitHub: 'https://github.com/EthanBostick', LinkedIn: 'https://www.linkedin.com/in/ethan-bostick-466717378/' },
                 { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.png', GitHub: 'https://github.com/CalebLineberry', LinkedIn: 'https://www.linkedin.com/in/caleb-lineberry/'  },
               ].map(member => (
