@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  clerkID   String   @unique
+  email     String   @unique
+  createdAt DateTime @default(now())
+  reports   Report[]
+}
+
+model Report {
+  report          String           @id @default(uuid())
+  userID          String
+  createdAt       DateTime         @default(now())
+  owner           User             @relation(fields: [userID], references: [id])
+  reportedTickers ReportedTicker[]
+}
+
+model Ticker {
+  ticker          String           @id
+  company         String           @unique
+  price           Float
+  industry        String
+  exchange        String
+  logoURL         String
+  rawScore        Float
+  cik             String           @unique
+  lastSync        DateTime         @default(now())
+  reportedTickers ReportedTicker[]
+}
+
+model ReportedTicker {
+  tickerSymbol String
+  reportID     String
+  report       Report @relation(fields: [reportID], references: [report])
+  ticker       Ticker @relation(fields: [tickerSymbol], references: [ticker])
+
+  @@id([reportID, tickerSymbol])
+  @@index([reportID, tickerSymbol], map: "report_ticker_idx")
+}
