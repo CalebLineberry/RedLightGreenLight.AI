@@ -11,23 +11,24 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.4",
     "@clerk/themes": "^2.4.46",
-    "@prisma/client": "^6.19.1",
     "cookie": "^1.1.1",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.0",
-    "prisma": "^6.19.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "svix": "^1.84.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
-    "@types/node": "^20",
+    "@types/node": "^20.19.27",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
     "tailwindcss": "^4.1.18",
-    "typescript": "5.9.3"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
