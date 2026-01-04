@@ -1,33 +1,34 @@
-import { Webhook } from "svix";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { NextResponse } from "next/server";
+import { Webhook } from "svix"; // npm install svix
+import { db } from "@/db";
+import { users } from "@/db/schema";
 
 export async function POST(req: Request) {
-  const payload = await req.text();
-
-  const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
-
   try {
-    const event = svix.verify(
-      payload,
-      Object.fromEntries(req.headers.entries())
-    ) as any;
+    // Raw body text
+    const payload = await req.text();
 
+    // Convert headers to a plain object
+    const headers = Object.fromEntries(req.headers.entries());
+
+    // Verify Clerk webhook signature
+    const svix = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
+    const event = svix.verify(payload, headers) as any;
+
+    // Only act on new users
     if (event.type === "user.created") {
       const user = event.data;
 
-      await prisma.user.create({
-        data: {
-          clerkID: user.id,
-          email: user.email_addresses[0].email_address,
-        },
+      // Insert into Drizzle / Supabase
+      await db.insert(users).values({
+        clerkId: user.id,
+        email: user.email_addresses[0].email_address,
       });
     }
 
-    return new Response("OK", { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error(err);
     return new Response("Invalid signature", { status: 400 });
   }
 }

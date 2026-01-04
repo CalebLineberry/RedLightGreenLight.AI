@@ -12,8 +12,10 @@
     "@clerk/nextjs": "^6.36.4",
     "@clerk/themes": "^2.4.46",
     "cookie": "^1.1.1",
+    "drizzle-orm": "^0.45.1",
     "lightweight-charts": "^5.1.0",
     "next": "^16.1.0",
+    "postgres": "^3.4.7",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "svix": "^1.84.1"
@@ -24,6 +26,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.8",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
     "tailwindcss": "^4.1.18",
