@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
       // Insert into Drizzle / Supabase
       await db.insert(users).values({
-        clerkId: user.id,
+        id: user.id,
         email: user.email_addresses[0].email_address,
       });
     }

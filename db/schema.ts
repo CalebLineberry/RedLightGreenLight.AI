@@ -3,8 +3,7 @@ import { pgTable, text, uuid, timestamp, doublePrecision, index } from "drizzle-
 // ---------------------------
 // Users table
 export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  clerkId: text("clerk_id").notNull().unique(),
+  id: text("id").primaryKey().notNull(),
   email: text("email").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });

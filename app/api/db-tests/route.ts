@@ -4,7 +4,7 @@ import { users } from "@/db/schema";
 
 export async function GET() {
   await db.insert(users).values({
-    clerkId: "test_clerk_id",
+    id: "test_clerk_id",
     email: "test@example.com",
   });
 
