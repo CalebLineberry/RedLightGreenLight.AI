@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, timestamp, doublePrecision, index } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, timestamp, doublePrecision, index, boolean } from "drizzle-orm/pg-core";
 
 // ---------------------------
 // Users table
@@ -23,13 +23,14 @@ export const reports = pgTable("reports", {
 export const tickers = pgTable("tickers", {
   ticker: text("ticker").primaryKey(),
   company: text("company").notNull().unique(),
-  price: doublePrecision("price").notNull(),
+  yhURL: text("yh_url").notNull().unique(),
   industry: text("industry").notNull(),
   exchange: text("exchange").notNull(),
   logoURL: text("logo_url").notNull(),
   rawScore: doublePrecision("raw_score").notNull(),
   cik: text("cik").notNull().unique(),
   lastSync: timestamp("last_sync").defaultNow(),
+  needsUpdate: boolean("needs_update").default(false),
 });
 
 // ---------------------------
