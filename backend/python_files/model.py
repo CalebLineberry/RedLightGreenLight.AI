@@ -1,21 +1,53 @@
-from torch.utils.checkpoint import checkpoint
+from transformers import PretrainedConfig
+from transformers import PreTrainedModel, AutoModel
 from transformers import AutoModel
+from peft import LoraConfig, get_peft_model
 import torch
 import torch.nn as nn
 import torch._dynamo
+from transformers.modeling_outputs import ModelOutput
+from dataclasses import dataclass
+from typing import Optional
 from peft import LoraConfig, get_peft_model
 
-class LSTM_T(nn.Module):
+@dataclass
+class LSTMTOutput(ModelOutput):
+    logits: torch.FloatTensor = None
+    hidden_state: Optional[torch.FloatTensor] = None
 
-  def __init__(self , bertBaseModel = "google-bert/bert-large-uncased",contextWindowSize = None , LoRA = False,LoRARank = None , LoRATargetModules = []):
-    super(LSTM_T , self).__init__()
+class LSTMTConfig(PretrainedConfig):
+    model_type = "lstm_t_bert"
+
+    def __init__(self, bert_base_model="answerdotai/ModernBERT-base", context_window_size=None, lora=False, lora_rank=None, lora_target_modules=None, **kwargs):
+      super().__init__(**kwargs)
+
+      self.bert_base_model = bert_base_model
+      self.context_window_size = context_window_size
+      self.lora = lora
+      self.lora_rank = lora_rank
+      self.lora_target_modules = lora_target_modules or []
+    
+
+class LSTM_T(PreTrainedModel):
+  config_class = LSTMTConfig
+  base_model_prefix = "lstm_t"
+
+  def __init__(self , config):
+    super().__init__(config)
+
+
+    bertBaseModel = config.bert_base_model
+    contextWindowSize = config.context_window_size
+    LoRA = config.lora
+    LoRARank = config.lora_rank
+    LoRATargetModules = config.lora_target_modules
 
     #get the bert tokenizer and model
     self.bert = None
     if "answerdotai/ModernBERT" in bertBaseModel:
-      self.bert = AutoModel.from_pretrained(bertBaseModel, attn_implementation="sdpa", dtype=torch.float16) #the model
+      self.bert = AutoModel.from_pretrained(bertBaseModel, attn_implementation="sdpa", dtype=torch.float16)
     else:
-      self.bert = AutoModel.from_pretrained(bertBaseModel, dtype=torch.float16) #the model
+      self.bert = AutoModel.from_pretrained(bertBaseModel, dtype=torch.float16)
     self.d = self.bert.config.hidden_size #model dim
 
     #freeze bert model weights
@@ -70,18 +102,20 @@ class LSTM_T(nn.Module):
     self.grelu = nn.GELU()
     self.hardtan = nn.Hardtanh(min_val=-8.0, max_val=8.0)
 
+    self.post_init()
+
   @torch._dynamo.disable
-  def forward(self,x):
+  def forward(self,input_ids = None, attention_mask = None, document_mask = None, labels =  None, **kwargs):
     # Get device
     device = next(self.parameters()).device
 
     # Get out shape
-    b,d,l = x["input_ids"].shape
+    b,d,l = input_ids.shape
 
     # Get out all the info and reshape
-    ids = x["input_ids"].reshape(b*d,l)
-    attnMasks = x["attention_mask"].reshape(b*d,l)
-    masks = x["document_mask"].to(torch.bool)
+    ids = input_ids.reshape(b*d,l)
+    attnMasks = attention_mask.reshape(b*d,l)
+    masks = document_mask.to(torch.bool)
 
     # Move it over to the right device
     ids = ids.to(device)
@@ -136,16 +170,19 @@ class LSTM_T(nn.Module):
       cellState = torch.clamp(cellState, min=-10, max=10)
       hiddenState = torch.clamp(hiddenState, min=-10, max=10)
 
-    return hiddenState
+    return LSTMTOutput(logits=None,hidden_state=hiddenState)
 
-class FullModel(nn.Module):
+class FullModel(PreTrainedModel):
+  config_class = LSTMTConfig
+  base_model_prefix = "lstm_t"
 
-  def __init__(self , bertBaseModel = "google-bert/bert-large-uncased",contextWindowSize = None,LoRA = False,LoRARank = None,LoRATargetModules = []):
+  def __init__(self , config):
 
     #super and load in LSTM_T unit
-    super(FullModel, self).__init__()
-    self.lstmT = LSTM_T(bertBaseModel,contextWindowSize,LoRA = LoRA,LoRARank = LoRARank,LoRATargetModules = LoRATargetModules)
+    super().__init__(config)
+    self.lstmT = LSTM_T(config)
     self.contextWindowSize = self.lstmT.l
+    d = self.lstmT.d
 
     #feed forward network
     self.layer1 = nn.Linear(in_features=self.lstmT.d , out_features=self.lstmT.d // 8,dtype=torch.float16)
@@ -155,9 +192,11 @@ class FullModel(nn.Module):
     self.actFunc = nn.LeakyReLU(0.1)
     self.dropout = nn.Dropout(p=0.3)
 
+    self.post_init()
+
   @torch._dynamo.disable
-  def forward(self,x):
-    output = self.lstmT(x)
+  def forward(self,input_ids = None, attention_mask = None, document_mask = None, labels =  None, **kwargs):
+    output = self.lstmT(input_ids = input_ids , attention_mask = attention_mask , document_mask = document_mask,labels=None).hidden_state
     output = output.squeeze(-1)
 
     output = self.layer1(output)
@@ -174,4 +213,4 @@ class FullModel(nn.Module):
 
     output = self.layer4(output)
 
-    return output
+    return LSTMTOutput(logits=output,hidden_state=None)

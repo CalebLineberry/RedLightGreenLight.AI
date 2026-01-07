@@ -1,7 +1,14 @@
+import logging
+import warnings
 import re
-import torch
-import json
 from transformers import AutoTokenizer
+import torch
+import logging
+import warnings
+import json
+warnings.filterwarnings("ignore", module="yfinance")
+logging.getLogger("yfinance.utils").setLevel(logging.CRITICAL)
+logging.getLogger("yfinance.base").setLevel(logging.CRITICAL)
 
 class LSTMT_Tokenizer():
 
@@ -16,8 +23,8 @@ class LSTMT_Tokenizer():
       self.context_window = context_size
     else:
       raise Exception("context_size and save_dir are both None. Complete one or the other kwarg to initialize.")
-    
-  def __call__(self,text,max_docs = 500):      
+
+  def __call__(self,text,max_docs = 500):
     text = self.split_text(text,max_docs)
     text = self.tokenize_docs(text , self.context_window,max_docs)
     return text
@@ -33,7 +40,7 @@ class LSTMT_Tokenizer():
       else:
         all_docs.append(doc_list)
     return all_docs
-  
+
   def tokenize_docs(self,docs,max_context_length,max_docs):
     input_ids = []
     attn_masks = []
@@ -62,12 +69,12 @@ class LSTMT_Tokenizer():
         input_ids.append(result.data["input_ids"])
         attn_masks.append(result.data["attention_mask"])
         document_masks.append(torch.ones(len(doc_list)))
-      
+
     input_ids = torch.stack(input_ids).to(torch.int)
     attn_masks = torch.stack(attn_masks).to(torch.float32)
     document_masks = torch.stack(document_masks).to(torch.float32)
     return {"input_ids":input_ids,"attention_mask":attn_masks,"document_mask":document_masks}
-  
+
   def save(self, save_dir):
 
     # Save the Hugging Face tokenizer

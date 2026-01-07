@@ -6,12 +6,16 @@ import logging
 import warnings
 from torch.utils.data import Dataset,DataLoader,random_split
 from pathlib import Path
+from transformers import AutoModel
 import re
 from tqdm import tqdm
+from transformers import AutoModel
 from torch.utils.data import Subset
 import torch
+import torch.nn as nn
 import logging
 import warnings
+
 warnings.filterwarnings("ignore", module="yfinance")
 logging.getLogger("yfinance.utils").setLevel(logging.CRITICAL)
 logging.getLogger("yfinance.base").setLevel(logging.CRITICAL)
@@ -276,7 +280,7 @@ def arrange_data(dirPath,max_seq_len,max_cum_length = None,valid = []):
         np.save(str(path) + f"/targets.npy" , np.array(y))
         np.save(str(path) + f"/maxYears.npy" , np.array(maxYears))
         pbar.update(1)
-
+    
 def validate_before_targets(dirPath):
   dir = Path(dirPath)
   numDirs = sum(1 for f in dir.iterdir() if f.is_dir())
@@ -323,7 +327,7 @@ def cleanup(dirPath):
         if "input_ids" in str(f.name) or "attention_mask" in str(f.name):
           os.remove(f)
       pbar.update(1)
-    
+
 def prep_it(fromPath,toPath,max_length,tokenizer,overwrite,max_cum_length,tokenize_batch_size=16,skip = [],max_seq_len=None):
 
   '''
@@ -413,8 +417,7 @@ class DirDataset(Dataset):
     yr = np.load(str(self.dir) + f"/{ticker}/maxYears.npy")[indx]
     target = np.load(str(self.dir) + f"/{ticker}/targets.npy")[indx]
     return (ticker,yr,target)
-
-
+  
 def train_test_split(data, trainPercent = 0.8 , yearLimit = None):
 
   if yearLimit is None:
@@ -436,3 +439,13 @@ def train_test_split(data, trainPercent = 0.8 , yearLimit = None):
     testData = Subset(data,testIndx)
     trainData = Subset(data,trainIndx)
     return (trainData,testData)
+
+def get_params():
+  model = AutoModel.from_pretrained("answerdotai/ModernBERT-base",attn_implementation="sdpa", dtype=torch.bfloat16)
+  params = []
+  for name, module in model.named_modules():
+      if isinstance(module, nn.Linear):
+          if "Wqkv" in name:
+            params.append(name)
+  params = params[18:]
+  return params

@@ -1,5 +1,6 @@
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 import torch
-import tqdm
 
 def test_model(model,testingData,batch_size,file_path = None):
   loader = DataLoader(testingData,batch_size = batch_size)
@@ -8,7 +9,7 @@ def test_model(model,testingData,batch_size,file_path = None):
   predictions = torch.tensor([])
   for x,y in tqdm(iter(loader)):
     with torch.no_grad():
-      y_hat = model(x)
+      y_hat = model(**x).logits
       y_hat = y_hat.detach().to("cpu")
       predictions = torch.concatenate((predictions,y_hat),dim = 0)
       targets = torch.concatenate((targets,y),dim = 0)
@@ -42,7 +43,7 @@ def binary_metrics(predictions , targets, threshold = 0.5):
       FN += 1
     else:
       FP += 1
-    
+
   acc  = (TP + TN) / (TP + TN + FP + FN)
   prec = TP / (TP + FP)
   rec  = TP / (TP + FN)
