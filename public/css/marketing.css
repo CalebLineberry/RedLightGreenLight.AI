@@ -1100,6 +1100,11 @@ body.mobile-nav-active #mobile-nav-toggle {
   background: #2dc899;
 }
 
+.fullwidth {
+  max-width: none !important;
+  width: 100% !important;
+}
+
 /*--------------------------------------------------------------
 # Footer
 --------------------------------------------------------------*/

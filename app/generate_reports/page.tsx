@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import DualRangeSlider from "@/app/components/ui/DualRangeSlider";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
 import Link from "next/link";
@@ -13,6 +15,8 @@ export default function ReportsPage() {
     { id: 4, name: "Finance Mixed" },
   ];
 
+
+  const [scoreRange, setScoreRange] = useState<[number, number]>([50, 90]);
   return (
     <>
     {/* Top Bar */}
@@ -40,14 +44,16 @@ export default function ReportsPage() {
           </div>
         </div>
       </header>
-<div className="mx-auto w-full max-w-none px-6 md:px-12">
+
+<div className="w-full pt-10 pb-20 mb-10 text-center">
+<div className="mx-auto w-full max-w-none md:px-48">
       
-<div className="w-full border-t pt-10">
+
 <div className="grid grid-cols-1 md:grid-cols-[420px_1fr_420px] items-stretch">
 
     {/* Left: Custom */}
 <div className="flex flex-col items-start md:pr-10">
-        <h2 className="text-xl font-semibold w-full text-center">Create Your Own Report</h2>
+        <h2 className="text-xl font-semibold w-full text-center m-0">Create Your Own Report</h2>
 
       <form
         method="POST"
@@ -63,27 +69,74 @@ export default function ReportsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col space-y-1">
             <label className="font-medium text-center">Industry</label>
-            <select className="border rounded p-2 w-full h-10" name="industry">
-              ...
+            <select
+              name="industry"
+              className="
+                border rounded p-2 w-full h-10
+                bg-[#11192D] text-white
+                appearance-none
+                focus:outline-none focus:ring-0 focus:border-[#52B788]
+              "
+            >
+
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Finance">Finance</option>
+              <option value="Energy">Energy</option>
+              <option value="Consumer Goods">Consumer Goods</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Telecommunications">Telecommunications</option>
+              <option value="Materials">Materials</option>
+              <option value="Industrial Goods">Industrial Goods</option>
             </select>
           </div>
 
           <div className="flex flex-col space-y-1">
             <label className="font-medium text-center">Exchange</label>
-            <select className="border rounded p-2 w-full h-10" name="exchange">
-              ...
+            <select
+              name="exchange"
+              className="
+                border rounded p-2 w-full h-10
+                bg-[#11192D] text-white
+                appearance-none
+                focus:outline-none focus:ring-0 focus:border-[#52B788]
+              "
+            >
+
+              <option value="NASDAQ">NASDAQ</option>
+              <option value="NYSE">NYSE</option>
+              <option value="AMEX">AMEX</option>
             </select>
           </div>
         </div>
 
         {/* Score */}
-        <div className="flex flex-col space-y-2">
-          <label className="font-medium text-center">Score Range</label>
-          <div className="grid grid-cols-2 gap-4">
-            <input type="range" name="scoreMin" min="0" max="100" defaultValue="50" />
-            <input type="range" name="scoreMax" min="0" max="100" defaultValue="90" />
-          </div>
-        </div>
+<div className="flex flex-col space-y-2">
+  <label className="font-medium text-center">Score Range</label>
+
+  <div className="text-center text-sm opacity-80">
+    Score: {scoreRange[0]} → {scoreRange[1]}
+  </div>
+
+  {/* IMPORTANT: hidden inputs so the POST form still sends the values */}
+  <input type="hidden" name="scoreMin" value={scoreRange[0]} />
+  <input type="hidden" name="scoreMax" value={scoreRange[1]} />
+
+  <DualRangeSlider
+    value={scoreRange}
+    onChange={setScoreRange}
+    min={0}
+    max={100}
+    step={1}
+  />
+
+  <div className="flex justify-between text-sm text-gray-500">
+    <span>{scoreRange[0]}</span>
+    <span>{scoreRange[1]}</span>
+  </div>
+</div>
+
 
         <div className="flex justify-center">
           <Button type="submit" className="w-fit">Generate</Button>
@@ -96,7 +149,7 @@ export default function ReportsPage() {
   <span className="text-6xl font-extrabold tracking-widest opacity-60 leading-none">OR</span>
 </div>
     {/* Right: Quick Generate */}
-<div className="h-full flex flex-col items-center justify-center md:pl-10">
+<div className="h-full flex flex-col items-center justify-center md:pl-10 m-0">
           <h1 className="text-2xl font-bold text-center">Generate a Report</h1>
       <form method="POST" action="/api/reports/quick" className="mt-4">
         <Button type="submit" className="w-fit">Generate for me</Button>
@@ -106,7 +159,7 @@ export default function ReportsPage() {
 </div>
 
       {/* Previously generated reports */}
-      <div className="border-t pt-6">
+      <div className="border-t pt-6 mt-10">
         <h2 className="text-xl font-semibold mb-4 text-center">Your Reports</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {reports.map((r) => (
