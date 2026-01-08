@@ -16,6 +16,7 @@ export const reports = pgTable("reports", {
   reportID: uuid("report_id").primaryKey().defaultRandom(),
   userID: text("user_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
+  name: text("name"),
 });
 
 // ---------------------------

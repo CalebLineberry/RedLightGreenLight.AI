@@ -7,7 +7,8 @@ export class Report {
   constructor(
     public readonly id: string,
     public readonly userId: string | null,
-    public readonly createdAt: Date
+    public readonly createdAt: Date,
+    public readonly name: string
   ) {}
 
   addTicker(ticker: ReportedTicker) {
