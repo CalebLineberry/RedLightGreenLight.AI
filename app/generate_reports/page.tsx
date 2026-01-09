@@ -51,9 +51,9 @@ export default function ReportsPage() {
 
 <div className="grid grid-cols-1 md:grid-cols-[420px_1fr_420px] items-stretch">
 
-    {/* Left: Custom */}
+    {/* Left: Generated */}
 <div className="flex flex-col items-start md:pr-10">
-        <h2 className="text-xl font-semibold w-full text-center m-0">Create Your Own Report</h2>
+        <h2 className="text-xl font-semibold w-full text-center m-0">Generate a Report</h2>
 
       <form
         method="POST"
@@ -148,11 +148,11 @@ export default function ReportsPage() {
 <div className="hidden md:flex h-full items-center justify-center">
   <span className="text-6xl font-extrabold tracking-widest opacity-60 leading-none">OR</span>
 </div>
-    {/* Right: Quick Generate */}
+    {/* Right: Custom */}
 <div className="h-full flex flex-col items-center justify-center md:pl-10 m-0">
-          <h1 className="text-2xl font-bold text-center">Generate a Report</h1>
+          <h1 className="text-2xl font-bold text-center">Create Your Own Report</h1>
       <form method="POST" action="/api/reports/quick" className="mt-4">
-        <Button type="submit" className="w-fit">Generate for me</Button>
+        <Button type="submit" className="w-fit">Create from Scratch</Button>
       </form>
     </div>
   </div>

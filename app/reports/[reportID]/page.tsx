@@ -102,15 +102,15 @@ export default async function ReportDetailPage(props: {
                           {t.exchange ? ` • ${t.exchange}` : ""}
                         </div>
                       </div>
-
-                      <Link
-                        href={t.yhURL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="shrink-0 rounded-lg border px-2 py-1 text-xs hover:bg-accent"
-                      >
+                    {t.yhURL && (
+                        <Link href={t.yhURL}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="shrink-0 rounded-lg border px-2 py-1 text-xs hover:bg-accent"
+                        >
                         Yahoo Finance
                       </Link>
+                    )}
                     </div>
                   </div>
                 </div>

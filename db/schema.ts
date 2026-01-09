@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, timestamp, doublePrecision, index, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, timestamp, doublePrecision, index, unique } from "drizzle-orm/pg-core";
 
 // ---------------------------
 // Users table
@@ -31,7 +31,6 @@ export const tickers = pgTable("tickers", {
   rawScore: doublePrecision("raw_score").notNull(),
   cik: text("cik").notNull().unique(),
   lastSync: timestamp("last_sync").defaultNow(),
-  needsUpdate: boolean("needs_update").default(false),
 });
 
 // ---------------------------
@@ -49,4 +48,26 @@ export const reportedTickers = pgTable(
     };
   }
 );
+
+// user picks up to 2 reports to track
+//Join table between users and reports
+export const trackedReports = pgTable(
+  "tracked_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userID: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    reportID: uuid("report_id").notNull().references(() => reports.reportID, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    // don't allow the same report to be tracked twice by the same user
+    userReportUnique: unique("tracked_reports_user_report_unique").on(t.userID, t.reportID),
+
+    // common access path: "get tracked reports for user"
+    userIdx: index("tracked_reports_user_idx").on(t.userID),
+
+    // common access path: "get tracked users for report" (optional but often useful)
+    reportIdx: index("tracked_reports_report_idx").on(t.reportID),
+  })
+);
+
 
