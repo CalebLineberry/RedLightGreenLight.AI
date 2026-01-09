@@ -43,6 +43,13 @@
       "when": 1767906208962,
       "tag": "0005_tired_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1767978856981,
+      "tag": "0006_shallow_pixie",
+      "breakpoints": true
     }
   ]
 }
