@@ -16,7 +16,7 @@ function fmtDate(d: Date | string | null) {
   return date.toLocaleString();
 }
 
-const LOGO_DEV_PUBLIC_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_PUBLIC_KEY;
+const LOGO_DEV_PUBLIC_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_API_KEY;
 
 function yahooUrl(ticker: string) {
   return `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}`;
@@ -24,10 +24,12 @@ function yahooUrl(ticker: string) {
 
 function logoDevUrl(ticker: string) {
   if (!LOGO_DEV_PUBLIC_KEY) return null;
-  return `https://img.logo.dev/${encodeURIComponent(
+
+  return `https://img.logo.dev/ticker/${encodeURIComponent(
     ticker
   )}?token=${encodeURIComponent(LOGO_DEV_PUBLIC_KEY)}`;
 }
+
 
 export default async function ReportDetailPage(props: {
   params: Promise<{ reportID: string }>;
@@ -89,7 +91,12 @@ export default async function ReportDetailPage(props: {
                 className="rounded-2xl border bg-card p-4 shadow-sm"
               >
                 <div className="flex items-start gap-3">
-                  <div className="relative h-12 w-12 overflow-hidden rounded-xl border bg-background">
+                    <div
+                    className={[
+                        "relative h-12 w-12 overflow-hidden rounded-xl",
+                        logo ? "" : "border bg-background",
+                    ].join(" ")}
+                    >
                     {logo ? (
                       <Image
                         src={logo}
