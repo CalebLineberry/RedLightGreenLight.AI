@@ -24,10 +24,8 @@ export const reports = pgTable("reports", {
 export const tickers = pgTable("tickers", {
   ticker: text("ticker").primaryKey(),
   company: text("company"),
-  yhURL: text("yh_url"),
   industry: text("industry"),
   exchange: text("exchange"),
-  logoURL: text("logo_url"),
   rawScore: doublePrecision("raw_score").notNull(),
   cik: text("cik").notNull().unique(),
   lastSync: timestamp("last_sync").defaultNow(),
