@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DualRangeSlider from "@/app/components/ui/DualRangeSlider";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
@@ -17,6 +17,35 @@ export default function ReportsPage() {
 
 
   const [scoreRange, setScoreRange] = useState<[number, number]>([50, 90]);
+
+  const [industries, setIndustries] = useState<string[]>([]);
+  const [exchanges, setExchanges] = useState<string[]>([]);
+  const [loadingFilters, setLoadingFilters] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("../api/tickers/filters", { cache: "no-store" });
+        const data = await res.json();
+
+        if (!cancelled) {
+          setIndustries(Array.isArray(data.industries) ? data.industries.filter(Boolean) : []);
+          setExchanges(Array.isArray(data.exchanges) ? data.exchanges.filter(Boolean) : []);
+        }
+      } catch (e) {
+        // optional: console.error(e);
+      } finally {
+        if (!cancelled) setLoadingFilters(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <>
     {/* Top Bar */}
@@ -77,18 +106,17 @@ export default function ReportsPage() {
                 appearance-none
                 focus:outline-none focus:ring-0 focus:border-[#52B788]
               "
+              disabled={loadingFilters}
             >
+              <option value="">
+                {loadingFilters ? "Loading industries..." : "All industries"}
+              </option>
 
-              <option value="Technology">Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Finance">Finance</option>
-              <option value="Energy">Energy</option>
-              <option value="Consumer Goods">Consumer Goods</option>
-              <option value="Utilities">Utilities</option>
-              <option value="Real Estate">Real Estate</option>
-              <option value="Telecommunications">Telecommunications</option>
-              <option value="Materials">Materials</option>
-              <option value="Industrial Goods">Industrial Goods</option>
+              {industries.map((ind) => (
+                <option key={ind} value={ind}>
+                  {ind}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -102,11 +130,17 @@ export default function ReportsPage() {
                 appearance-none
                 focus:outline-none focus:ring-0 focus:border-[#52B788]
               "
+              disabled={loadingFilters}
             >
+              <option value="">
+                {loadingFilters ? "Loading exchanges..." : "All exchanges"}
+              </option>
 
-              <option value="NASDAQ">NASDAQ</option>
-              <option value="NYSE">NYSE</option>
-              <option value="AMEX">AMEX</option>
+              {exchanges.map((ex) => (
+                <option key={ex} value={ex}>
+                  {ex}
+                </option>
+              ))}
             </select>
           </div>
         </div>
