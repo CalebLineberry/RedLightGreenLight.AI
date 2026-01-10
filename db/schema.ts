@@ -33,19 +33,27 @@ export const tickers = pgTable("tickers", {
 
 // ---------------------------
 // ReportedTickers table (many-to-many)
+import { uniqueIndex } from "drizzle-orm/pg-core";
+
 export const reportedTickers = pgTable(
   "reported_tickers",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    tickerSymbol: text("ticker_symbol").references(() => tickers.ticker),
-    reportID: uuid("report_id").references(() => reports.reportID),
+    tickerSymbol: text("ticker_symbol")
+      .notNull()
+      .references(() => tickers.ticker),
+    reportID: uuid("report_id")
+      .notNull()
+      .references(() => reports.reportID),
   },
-  (table) => {
-    return {
-      reportTickerIdx: index("report_ticker_idx").on(table.reportID, table.tickerSymbol),
-    };
-  }
+  (table) => ({
+    reportTickerUnique: uniqueIndex("reported_tickers_report_symbol_uq").on(
+      table.reportID,
+      table.tickerSymbol
+    ),
+  })
 );
+
 
 // user picks up to 2 reports to track
 //Join table between users and reports
