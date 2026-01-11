@@ -8,6 +8,8 @@ import { reports, tickers, reportedTickers } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 
 import ReportDetailShell from "./ReportDetailShell";
+import RemoveTickerButton from "./RemoveTickerButton";
+
 
 function fmtDate(d: Date | string | null) {
   if (!d) return "—";
@@ -154,6 +156,10 @@ export default async function ReportDetailPage(props: {
                   <div className="text-muted-foreground">Last sync</div>
                   <div className="text-right">{fmtDate(t.lastSync)}</div>
                 </div>
+                <div className="mt-3 flex justify-end">
+                    <RemoveTickerButton reportID={report.reportID} ticker={t.ticker} />
+                </div>
+
               </div>
             );
           })}
