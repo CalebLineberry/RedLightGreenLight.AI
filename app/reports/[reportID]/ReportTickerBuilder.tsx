@@ -13,6 +13,9 @@ type SearchRow = {
   cik: string | number | null;
 };
 
+const MAX_TICKERS = 30;
+
+
 function cleanNA(v: string | null | undefined) {
   if (!v) return null;
   const s = v.trim();
@@ -97,6 +100,48 @@ export default function ReportTickerBuilder({
     };
   }, []);
 
+  const selectedCount = useMemo(
+  () => Object.values(selected).filter(Boolean).length,
+  [selected]
+    );
+
+    const atLimit = selectedCount >= MAX_TICKERS;
+    const [limitMsg, setLimitMsg] = useState<string | null>(null);
+    const [loadingSelected, setLoadingSelected] = useState(true);
+
+  useEffect(() => {
+  let cancelled = false;
+
+  (async () => {
+    setLoadingSelected(true);
+    try {
+      const res = await fetch(
+        `/api/reports/${encodeURIComponent(reportID)}/tickers`,
+        { cache: "no-store" }
+      );
+      const data = await res.json();
+
+      if (cancelled) return;
+
+      const tickers: string[] = Array.isArray(data?.tickers) ? data.tickers : [];
+
+      const nextSelected: Record<string, boolean> = {};
+      for (const t of tickers) nextSelected[t] = true;
+
+      setSelected(nextSelected);
+    } catch {
+      // ignore
+    } finally {
+      if (!cancelled) setLoadingSelected(false);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [reportID]);
+
+
   const hasNonDefaultScore = !(scoreMin === 0 && scoreMax === 100);
   const shouldSearch = Boolean(dq.trim() || industry || exchange || hasNonDefaultScore);
 
@@ -158,7 +203,7 @@ export default function ReportTickerBuilder({
         setSelected((prev) => ({ ...prev, [ticker]: !nextChecked }));
         return;
       }
-
+      setLimitMsg(null);
       router.refresh();
     } finally {
       setBusyTicker(null);
@@ -168,6 +213,29 @@ export default function ReportTickerBuilder({
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
       <h2 className="text-sm font-semibold">Build your report</h2>
+      <div className="mt-1 text-xs text-muted-foreground">
+        Selected: <span className="font-medium">{selectedCount}</span> / {MAX_TICKERS}
+        {loadingSelected ? " (loading…)" : ""}
+        </div>
+
+        {(atLimit || limitMsg) && (
+        <div
+            className={[
+            "mt-3 rounded-xl border px-3 py-2 text-sm",
+            atLimit
+                ? "border-amber-500/40 bg-amber-500/10"
+                : "border-red-500/40 bg-red-500/10 text-red-600",
+            ].join(" ")}
+        >
+            <div className="font-semibold">
+            {atLimit ? "Max tickers reached" : "Limit reached"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+            {limitMsg ?? `Reports are limited to ${MAX_TICKERS} tickers. Remove one to add another.`}
+            </div>
+        </div>
+        )}
+
 
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
         <div className="md:col-span-2">
@@ -258,12 +326,22 @@ export default function ReportTickerBuilder({
             <ul className="max-h-80 overflow-auto">
               {results.map((r) => {
                 const checked = !!selected[r.ticker];
-                const disabled = busyTicker === r.ticker;
+                const busy = busyTicker === r.ticker;
+
+                // Disable only “adding” when at limit; still allow unchecking/removing
+                const disableAdd = atLimit && !checked;
+
+                // final disabled state
+                const disabled = busy || disableAdd || loadingSelected;
+
 
                 return (
                   <li
                     key={r.ticker}
-                    className="flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-accent/40"
+                    className={[
+                    "flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-accent/40",
+                    disableAdd ? "opacity-60" : "",
+                    ].join(" ")}
                   >
                     <div className="min-w-0">
                       <div className="truncate font-medium">
@@ -283,12 +361,30 @@ export default function ReportTickerBuilder({
                         checked={checked}
                         disabled={disabled}
                         onChange={(e) => {
-                          const next = e.target.checked;
-                          setSelected((prev) => ({ ...prev, [r.ticker]: next }));
-                          toggleTicker(r.ticker, next);
+                            const next = e.target.checked;
+
+                            // ✅ If user tries to add #31, prevent and show message
+                            if (next && disableAdd) {
+                                e.preventDefault();
+                                setLimitMsg(`You can only select up to ${MAX_TICKERS} tickers. Remove one to add another.`);
+                                return;
+                            }
+
+                            setLimitMsg(null);
+                            setSelected((prev) => ({ ...prev, [r.ticker]: next }));
+                            toggleTicker(r.ticker, next);
                         }}
+                        
+
                       />
-                      {disabled ? "…" : checked ? "Added" : "Add"}
+                      {busy
+                        ? "…"
+                        : checked
+                        ? "Added"
+                        : disableAdd
+                        ? "Limit"
+                        : "Add"}
+
                     </label>
                   </li>
                 );

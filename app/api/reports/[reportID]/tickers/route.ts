@@ -65,3 +65,23 @@ export async function DELETE(req: Request, ctx: Ctx) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function GET(
+  _req: Request,
+  context: { params: Promise<{ reportID: string }> }
+) {
+  const { reportID } = await context.params;
+
+  if (!reportID) {
+    return NextResponse.json({ tickers: [] }, { status: 400 });
+  }
+
+  const rows = await db
+    .select({ ticker: reportedTickers.tickerSymbol })
+    .from(reportedTickers)
+    .where(eq(reportedTickers.reportID, reportID));
+
+  return NextResponse.json({
+    tickers: rows.map((r) => r.ticker),
+  });
+}
