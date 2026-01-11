@@ -27,12 +27,14 @@ function PencilIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function ReportDetailShell(props: {
   title: string;
   reportID: string;
+  // keep prop for now so you don't have to refactor other files immediately
   isCustomReport: boolean;
   children: React.ReactNode;
 }) {
-  const { title, reportID, isCustomReport, children } = props;
+  const { title, reportID, children } = props;
 
-  const [editing, setEditing] = useState<boolean>(isCustomReport);
+  // ✅ Any report can be edited; default closed.
+  const [editing, setEditing] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen w-full">
@@ -43,12 +45,12 @@ export default function ReportDetailShell(props: {
               {title}
             </h1>
 
-            {isCustomReport && !editing && (
+            {!editing && (
               <button
                 type="button"
                 onClick={() => setEditing(true)}
                 className="inline-flex items-center justify-center rounded-lg border px-2 py-1 text-xs hover:bg-accent"
-                aria-label="Edit custom report"
+                aria-label="Edit report"
                 title="Edit"
               >
                 <PencilIcon className="h-4 w-4" />
@@ -60,14 +62,9 @@ export default function ReportDetailShell(props: {
 
       <main className="mx-auto max-w-6xl px-4 py-6">
         {/* ✅ Keep mounted, just hide/show */}
-        {isCustomReport && (
-          <div className={editing ? "mb-6" : "mb-6 hidden"}>
-            <ReportTickerBuilder
-              reportID={reportID}
-              onDone={() => setEditing(false)}
-            />
-          </div>
-        )}
+        <div className={editing ? "mb-6" : "mb-6 hidden"}>
+          <ReportTickerBuilder reportID={reportID} onDone={() => setEditing(false)} />
+        </div>
 
         {children}
       </main>
