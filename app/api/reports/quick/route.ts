@@ -1,5 +1,5 @@
-// app/api/reports/quick/route.ts
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
 import { reports, tickers, reportedTickers } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
@@ -18,6 +18,14 @@ function numOr(v: FormDataEntryValue | null, fallback: number) {
 }
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    // If you prefer redirect instead of JSON:
+    // return NextResponse.redirect(new URL("/sign-in", req.url));
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const form = await req.formData();
 
   const reportName = cleanNA(form.get("reportName")) ?? "Generated Report";
@@ -27,10 +35,13 @@ export async function POST(req: Request) {
   const scoreMin = numOr(form.get("scoreMin"), 0);
   const scoreMax = numOr(form.get("scoreMax"), 100);
 
-  // 1) Create report
+  // 1) Create report (owned by the current user)
   const created = await db
     .insert(reports)
-    .values({ name: reportName })
+    .values({
+      name: reportName,
+      userID: userId, // ✅ owner
+    })
     .returning({ reportID: reports.reportID });
 
   const reportID = created[0]?.reportID;
@@ -40,21 +51,16 @@ export async function POST(req: Request) {
 
   // 2) Pick up to 30 tickers that match the filters
   const picked = await db
-    .select({
-      ticker: tickers.ticker,
-    })
+    .select({ ticker: tickers.ticker })
     .from(tickers)
     .where(
       and(
         industry ? eq(tickers.industry, industry) : undefined,
         exchange ? eq(tickers.exchange, exchange) : undefined,
-        // if rawScore is nullable, you may want to require it:
         sql`${tickers.rawScore} >= ${scoreMin}`,
         sql`${tickers.rawScore} <= ${scoreMax}`
       )
     )
-    // You can change this ordering if you want "best first":
-    // .orderBy(desc(tickers.rawScore))
     .limit(30);
 
   // 3) Insert into reportedTickers
@@ -68,6 +74,5 @@ export async function POST(req: Request) {
   }
 
   // 4) Redirect to the report detail page
-  const url = new URL(`/reports/${reportID}`, req.url);
-  return NextResponse.redirect(url);
+  return NextResponse.redirect(new URL(`/reports/${reportID}`, req.url));
 }

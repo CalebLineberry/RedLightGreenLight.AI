@@ -2,14 +2,14 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 
 import { db } from "@/db";
 import { reports, tickers, reportedTickers } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { and, eq, asc } from "drizzle-orm";
 
 import ReportDetailShell from "./ReportDetailShell";
 import RemoveTickerButton from "./RemoveTickerButton";
-
 
 function fmtDate(d: Date | string | null) {
   if (!d) return "—";
@@ -32,13 +32,16 @@ function logoDevUrl(ticker: string) {
   )}?token=${encodeURIComponent(LOGO_DEV_PUBLIC_KEY)}`;
 }
 
-
 export default async function ReportDetailPage(props: {
   params: Promise<{ reportID: string }>;
 }) {
+  const { userId } = await auth();
+  if (!userId) notFound(); // middleware should redirect anyway, but this prevents leakage
+
   const { reportID } = await props.params;
   if (!reportID) notFound();
 
+  // ✅ Only fetch if this report belongs to this user
   const reportRow = await db
     .select({
       reportID: reports.reportID,
@@ -46,7 +49,7 @@ export default async function ReportDetailPage(props: {
       createdAt: reports.createdAt,
     })
     .from(reports)
-    .where(eq(reports.reportID, reportID))
+    .where(and(eq(reports.reportID, reportID), eq(reports.userID, userId)))
     .limit(1);
 
   const report = reportRow[0];
@@ -72,11 +75,7 @@ export default async function ReportDetailPage(props: {
   const isCustomReport = title.toLowerCase().includes("custom");
 
   return (
-    <ReportDetailShell
-      title={title}
-      reportID={report.reportID}
-      isCustomReport={isCustomReport}
-    >
+    <ReportDetailShell title={title} reportID={report.reportID} isCustomReport={isCustomReport}>
       {rows.length === 0 ? (
         <div className="rounded-2xl border p-6 text-center text-sm text-muted-foreground">
           No tickers found for this report.
@@ -88,17 +87,14 @@ export default async function ReportDetailPage(props: {
             const logo = logoDevUrl(t.ticker);
 
             return (
-              <div
-                key={t.ticker}
-                className="rounded-2xl border bg-card p-4 shadow-sm"
-              >
+              <div key={t.ticker} className="rounded-2xl border bg-card p-4 shadow-sm">
                 <div className="flex items-start gap-3">
-                    <div
+                  <div
                     className={[
-                        "relative h-12 w-12 overflow-hidden rounded-xl",
-                        logo ? "" : "border bg-background",
+                      "relative h-12 w-12 overflow-hidden rounded-xl",
+                      logo ? "" : "border bg-background",
                     ].join(" ")}
-                    >
+                  >
                     {logo ? (
                       <Image
                         src={logo}
@@ -117,9 +113,7 @@ export default async function ReportDetailPage(props: {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold">
-                          {t.company ?? "—"}
-                        </div>
+                        <div className="truncate text-sm font-semibold">{t.company ?? "—"}</div>
                         <div className="text-xs text-muted-foreground">
                           <span className="font-medium">{t.ticker}</span>
                           {t.exchange ? ` • ${t.exchange}` : ""}
@@ -156,10 +150,10 @@ export default async function ReportDetailPage(props: {
                   <div className="text-muted-foreground">Last sync</div>
                   <div className="text-right">{fmtDate(t.lastSync)}</div>
                 </div>
-                <div className="mt-3 flex justify-end">
-                    <RemoveTickerButton reportID={report.reportID} ticker={t.ticker} />
-                </div>
 
+                <div className="mt-3 flex justify-end">
+                  <RemoveTickerButton reportID={report.reportID} ticker={t.ticker} />
+                </div>
               </div>
             );
           })}

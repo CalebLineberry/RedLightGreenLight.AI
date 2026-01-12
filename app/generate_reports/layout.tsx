@@ -1,5 +1,7 @@
 // app/marketing/layout.tsx
 import { ReactNode } from "react";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import Script from "next/script";
 import "../../public/lib/bootstrap/css/bootstrap.min.css";
 import "../../public/lib/font-awesome/css/font-awesome.min.css";
@@ -11,7 +13,9 @@ import "../../public/css/marketing.css";
 //import "../../js/main.js"; // optional: if you convert it to module
 
 
-export default function TickersLayout({ children }: { children: ReactNode }) {
+export default async function GenerateReportsLayout({ children }: { children: ReactNode }) {
+    const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
   return (
     <>      
       {/* JS Libraries */}
