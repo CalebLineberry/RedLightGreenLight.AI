@@ -3,16 +3,24 @@ import { redirect } from "next/navigation";
 import GenerateReportsClient from "./GenerateReportsClient";
 
 import { db } from "@/db";
-import { reports } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { reports, trackedReports } from "@/db/schema";
+import { desc, eq, sql } from "drizzle-orm";
 
 export default async function Page() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
   const myReports = await db
-    .select({ id: reports.reportID, name: reports.name })
+    .select({
+      id: reports.reportID,
+      name: reports.name,
+      isTracked: sql<boolean>`(${trackedReports.id} is not null)`.as("isTracked"),
+    })
     .from(reports)
+    .leftJoin(
+      trackedReports,
+      sql`${trackedReports.reportID} = ${reports.reportID} and ${trackedReports.userID} = ${userId}`
+    )
     .where(eq(reports.userID, userId))
     .orderBy(desc(reports.createdAt))
     .limit(50);

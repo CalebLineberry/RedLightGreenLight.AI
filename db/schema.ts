@@ -44,7 +44,7 @@ export const reportedTickers = pgTable(
       .references(() => tickers.ticker),
     reportID: uuid("report_id")
       .notNull()
-      .references(() => reports.reportID),
+      .references(() => reports.reportID, { onDelete: "cascade" }), // ✅ add this
   },
   (table) => ({
     reportTickerUnique: uniqueIndex("reported_tickers_report_symbol_uq").on(
@@ -53,6 +53,7 @@ export const reportedTickers = pgTable(
     ),
   })
 );
+
 
 
 // user picks up to 2 reports to track

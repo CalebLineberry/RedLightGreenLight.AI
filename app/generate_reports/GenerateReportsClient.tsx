@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useTransition } from "react";
 import DualRangeSlider from "@/app/components/ui/DualRangeSlider";
+import { deleteReports, setTrackedReports } from "./actions";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent } from "@/app/components/ui/card";
 import Link from "next/link";
 import AuthBar from "@/app/components/AuthBar";
 
+
+
 type ReportListItem = {
   id: string; // report UUID
   name: string | null;
+  isTracked: boolean;
 };
+
+
 
 function cleanNA(v: unknown): string | null {
   if (typeof v !== "string") return null;
@@ -21,7 +27,7 @@ function cleanNA(v: unknown): string | null {
 }
 
 export default function GenerateReportsClient({
-  reports,
+  reports: reportItems
 }: {
   reports: ReportListItem[];
 }) {
@@ -31,6 +37,15 @@ export default function GenerateReportsClient({
   const [industries, setIndustries] = useState<string[]>([]);
   const [exchanges, setExchanges] = useState<string[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(true);
+  const [isPending, startTransition] = useTransition();
+
+const [deleteSelected, setDeleteSelected] = useState<Set<string>>(new Set());
+
+const initialTracked = useMemo(
+  () => new Set(reportItems.filter((r) => r.isTracked).map((r) => r.id)),
+  [reportItems]
+);
+const [trackedSelected, setTrackedSelected] = useState<Set<string>>(initialTracked);
 
   useEffect(() => {
     let cancelled = false;
@@ -231,28 +246,131 @@ export default function GenerateReportsClient({
         </div>
 
         {/* Previously generated reports */}
-        <div className="border-t pt-6 mt-10">
-          <h2 className="text-xl font-semibold mb-4 text-center">Your Reports</h2>
+  <div className="border-t pt-6 mt-10">
+    <h2 className="text-xl font-semibold mb-2 text-center">Your Reports</h2>
 
-          {reports.length === 0 ? (
-            <div className="text-sm text-muted-foreground text-center">
-              No saved reports yet.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {reports.map((r) => (
-                <Link key={r.id} href={`/reports/${r.id}`} className="no-underline">
-                  <Card className="cursor-pointer hover:shadow-lg">
-                    <CardContent className="p-4 text-center font-medium">
-                      {r.name ?? "Untitled Report"}
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+    {/* Action bar */}
+    <div className="flex flex-col items-center gap-2 mb-4">
+      <div className="flex flex-wrap justify-center gap-2">
+        <Button
+          type="button"
+          onClick={() => {
+            const ids = Array.from(deleteSelected);
+            if (ids.length === 0) return;
+
+            startTransition(async () => {
+              await deleteReports(ids);
+              setDeleteSelected(new Set());
+            });
+          }}
+          disabled={isPending || deleteSelected.size === 0}
+          className="w-fit"
+        >
+          {isPending ? "Working..." : `Delete selected (${deleteSelected.size})`}
+        </Button>
+
+        <Button
+          type="button"
+          onClick={() => {
+            const ids = Array.from(trackedSelected);
+            startTransition(async () => {
+              await setTrackedReports(ids);
+            });
+          }}
+          disabled={isPending}
+          className="w-fit"
+        >
+          {isPending ? "Working..." : `Save tracking (${trackedSelected.size}/2)`}
+        </Button>
       </div>
+
+      <div className="text-xs opacity-80">
+        Track up to <strong>two</strong> reports for updates.
+      </div>
+    </div>
+
+    {reportItems.length === 0 ? (
+      <div className="text-sm text-muted-foreground text-center">
+        No saved reports yet.
+      </div>
+    ) : (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {reportItems.map((r) => {
+          const isDeleteChecked = deleteSelected.has(r.id);
+          const isTrackedChecked = trackedSelected.has(r.id);
+          const trackDisabled = !isTrackedChecked && trackedSelected.size >= 2;
+
+          return (
+            <div key={r.id} className="relative">
+              {/* Clickable card */}
+              <Link href={`/reports/${r.id}`} className="no-underline">
+                <Card className="cursor-pointer hover:shadow-lg">
+                  <CardContent className="p-4 text-center font-medium">
+                    {r.name ?? "Untitled Report"}
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Overlay controls */}
+              <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
+                {/* Delete */}
+                <label
+                  className="flex items-center gap-1 text-xs bg-black/60 text-white px-2 py-1 rounded"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isDeleteChecked}
+                    onChange={() => {
+                      setDeleteSelected((prev) => {
+                        const next = new Set(prev);
+                        next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+                        return next;
+                      });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  Delete
+                </label>
+
+                {/* Track */}
+                <label
+                  className={`flex items-center gap-1 text-xs px-2 py-1 rounded ${
+                    trackDisabled ? "bg-black/30 text-white/60" : "bg-black/60 text-white"
+                  }`}
+                  title={trackDisabled ? "You can only track two reports." : "Track for updates"}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isTrackedChecked}
+                    disabled={trackDisabled}
+                    onChange={() => {
+                      setTrackedSelected((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(r.id)) {
+                          next.delete(r.id);
+                          return next;
+                        }
+                        if (next.size >= 2) return next;
+                        next.add(r.id);
+                        return next;
+                      });
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  Track
+                </label>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+      </div>
+    
+  </div>
+
 
       {/* Footer */}
       <footer id="footer">
@@ -263,5 +381,4 @@ export default function GenerateReportsClient({
         </div>
       </footer>
     </>
-  );
-}
+);}
