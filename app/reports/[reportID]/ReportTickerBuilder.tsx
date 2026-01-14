@@ -15,7 +15,6 @@ type SearchRow = {
 
 const MAX_TICKERS = 30;
 
-
 function cleanNA(v: string | null | undefined) {
   if (!v) return null;
   const s = v.trim();
@@ -42,6 +41,89 @@ export default function ReportTickerBuilder({
 }) {
   const router = useRouter();
 
+  // ---------------------------
+  // ✅ Report name (rename)
+  // ---------------------------
+  const [reportName, setReportName] = useState("");
+  const [initialReportName, setInitialReportName] = useState("");
+  const [loadingReportName, setLoadingReportName] = useState(true);
+  const [savingReportName, setSavingReportName] = useState(false);
+  const [reportNameError, setReportNameError] = useState<string | null>(null);
+
+  const nameDirty = reportName.trim() !== initialReportName.trim();
+
+  async function saveReportName() {
+    const next = reportName.trim();
+    setReportNameError(null);
+
+    if (!next) {
+      setReportNameError("Report name can’t be empty.");
+      return;
+    }
+    if (next.length > 80) {
+      setReportNameError("Report name must be 80 characters or less.");
+      return;
+    }
+    if (!nameDirty) return;
+
+    setSavingReportName(true);
+    try {
+      const res = await fetch(`/api/reports/${encodeURIComponent(reportID)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: next }),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        setReportNameError(msg || "Failed to update report name.");
+        return;
+      }
+
+      setInitialReportName(next);
+      setReportName(next);
+      router.refresh();
+    } finally {
+      setSavingReportName(false);
+    }
+  }
+
+  // Load report name
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      setLoadingReportName(true);
+      try {
+        const res = await fetch(`/api/reports/${encodeURIComponent(reportID)}`, {
+          cache: "no-store",
+        });
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        const name =
+          typeof data?.name === "string" && data.name.trim()
+            ? data.name.trim()
+            : "";
+
+        setReportName(name);
+        setInitialReportName(name);
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoadingReportName(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reportID]);
+
+  // ---------------------------
+  // existing state
+  // ---------------------------
   const [industries, setIndustries] = useState<string[]>([]);
   const [exchanges, setExchanges] = useState<string[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(true);
@@ -101,46 +183,45 @@ export default function ReportTickerBuilder({
   }, []);
 
   const selectedCount = useMemo(
-  () => Object.values(selected).filter(Boolean).length,
-  [selected]
-    );
+    () => Object.values(selected).filter(Boolean).length,
+    [selected]
+  );
 
-    const atLimit = selectedCount >= MAX_TICKERS;
-    const [limitMsg, setLimitMsg] = useState<string | null>(null);
-    const [loadingSelected, setLoadingSelected] = useState(true);
+  const atLimit = selectedCount >= MAX_TICKERS;
+  const [limitMsg, setLimitMsg] = useState<string | null>(null);
+  const [loadingSelected, setLoadingSelected] = useState(true);
 
   useEffect(() => {
-  let cancelled = false;
+    let cancelled = false;
 
-  (async () => {
-    setLoadingSelected(true);
-    try {
-      const res = await fetch(
-        `/api/reports/${encodeURIComponent(reportID)}/tickers`,
-        { cache: "no-store" }
-      );
-      const data = await res.json();
+    (async () => {
+      setLoadingSelected(true);
+      try {
+        const res = await fetch(
+          `/api/reports/${encodeURIComponent(reportID)}/tickers`,
+          { cache: "no-store" }
+        );
+        const data = await res.json();
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      const tickers: string[] = Array.isArray(data?.tickers) ? data.tickers : [];
+        const tickers: string[] = Array.isArray(data?.tickers) ? data.tickers : [];
 
-      const nextSelected: Record<string, boolean> = {};
-      for (const t of tickers) nextSelected[t] = true;
+        const nextSelected: Record<string, boolean> = {};
+        for (const t of tickers) nextSelected[t] = true;
 
-      setSelected(nextSelected);
-    } catch {
-      // ignore
-    } finally {
-      if (!cancelled) setLoadingSelected(false);
-    }
-  })();
+        setSelected(nextSelected);
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoadingSelected(false);
+      }
+    })();
 
-  return () => {
-    cancelled = true;
-  };
-}, [reportID]);
-
+    return () => {
+      cancelled = true;
+    };
+  }, [reportID]);
 
   const hasNonDefaultScore = !(scoreMin === 0 && scoreMax === 100);
   const shouldSearch = Boolean(dq.trim() || industry || exchange || hasNonDefaultScore);
@@ -191,11 +272,14 @@ export default function ReportTickerBuilder({
     setBusyTicker(ticker);
 
     try {
-      const res = await fetch(`/api/reports/${encodeURIComponent(reportID)}/tickers`, {
-        method: nextChecked ? "POST" : "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticker }),
-      });
+      const res = await fetch(
+        `/api/reports/${encodeURIComponent(reportID)}/tickers`,
+        {
+          method: nextChecked ? "POST" : "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ticker }),
+        }
+      );
 
       if (!res.ok) {
         const msg = await res.text().catch(() => "");
@@ -212,30 +296,90 @@ export default function ReportTickerBuilder({
 
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
-      <h2 className="text-sm font-semibold">Build your report</h2>
-      <div className="mt-1 text-xs text-muted-foreground">
-        Selected: <span className="font-medium">{selectedCount}</span> / {MAX_TICKERS}
-        {loadingSelected ? " (loading…)" : ""}
-        </div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold">Build your report</h2>
 
-        {(atLimit || limitMsg) && (
+          {/* ✅ rename UI */}
+          <div className="mt-2">
+            <label className="mb-1 block text-xs text-muted-foreground">
+              Report name
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                value={reportName}
+                disabled={loadingReportName || savingReportName}
+                onChange={(e) => setReportName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    saveReportName();
+                  }
+                }}
+                onBlur={() => {
+                  // optional: auto-save on blur
+                  saveReportName();
+                }}
+                placeholder={loadingReportName ? "Loading…" : "Untitled report"}
+                className="h-10 w-full min-w-0 rounded-lg border bg-background px-3 text-sm outline-none focus:border-[#52B788]"
+              />
+
+              <button
+                type="button"
+                disabled={
+                  loadingReportName || savingReportName || !nameDirty || !reportName.trim()
+                }
+                onClick={saveReportName}
+                className={[
+                  "h-10 shrink-0 rounded-lg border px-3 text-sm",
+                  savingReportName
+                    ? "opacity-60"
+                    : "hover:bg-accent/40",
+                ].join(" ")}
+              >
+                {savingReportName ? "Saving…" : "Save"}
+              </button>
+            </div>
+
+            {reportNameError ? (
+              <div className="mt-1 text-[11px] text-red-600">{reportNameError}</div>
+            ) : (
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                {loadingReportName
+                  ? "Loading report…"
+                  : nameDirty
+                  ? "Press Enter or click Save."
+                  : " "}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-2 text-xs text-muted-foreground">
+            Selected: <span className="font-medium">{selectedCount}</span> /{" "}
+            {MAX_TICKERS}
+            {loadingSelected ? " (loading…)" : ""}
+          </div>
+        </div>
+      </div>
+
+      {(atLimit || limitMsg) && (
         <div
-            className={[
+          className={[
             "mt-3 rounded-xl border px-3 py-2 text-sm",
             atLimit
-                ? "border-amber-500/40 bg-amber-500/10"
-                : "border-red-500/40 bg-red-500/10 text-red-600",
-            ].join(" ")}
+              ? "border-amber-500/40 bg-amber-500/10"
+              : "border-red-500/40 bg-red-500/10 text-red-600",
+          ].join(" ")}
         >
-            <div className="font-semibold">
+          <div className="font-semibold">
             {atLimit ? "Max tickers reached" : "Limit reached"}
-            </div>
-            <div className="text-xs text-muted-foreground">
-            {limitMsg ?? `Reports are limited to ${MAX_TICKERS} tickers. Remove one to add another.`}
-            </div>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {limitMsg ??
+              `Reports are limited to ${MAX_TICKERS} tickers. Remove one to add another.`}
+          </div>
         </div>
-        )}
-
+      )}
 
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-4">
         <div className="md:col-span-2">
@@ -311,7 +455,6 @@ export default function ReportTickerBuilder({
         </div>
       </div>
 
-      {/* ✅ results should show when filters are used too */}
       {shouldSearch ? (
         <div className="mt-4 rounded-xl border bg-background">
           <div className="border-b px-3 py-2 text-xs font-medium">
@@ -327,26 +470,23 @@ export default function ReportTickerBuilder({
               {results.map((r) => {
                 const checked = !!selected[r.ticker];
                 const busy = busyTicker === r.ticker;
-
-                // Disable only “adding” when at limit; still allow unchecking/removing
                 const disableAdd = atLimit && !checked;
-
-                // final disabled state
                 const disabled = busy || disableAdd || loadingSelected;
-
 
                 return (
                   <li
                     key={r.ticker}
                     className={[
-                    "flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-accent/40",
-                    disableAdd ? "opacity-60" : "",
+                      "flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-accent/40",
+                      disableAdd ? "opacity-60" : "",
                     ].join(" ")}
                   >
                     <div className="min-w-0">
                       <div className="truncate font-medium">
                         {r.company ?? "—"}{" "}
-                        <span className="text-xs text-muted-foreground">• {r.ticker}</span>
+                        <span className="text-xs text-muted-foreground">
+                          • {r.ticker}
+                        </span>
                       </div>
                       <div className="truncate text-xs text-muted-foreground">
                         {cleanNA(r.industry) ?? "—"}
@@ -361,21 +501,20 @@ export default function ReportTickerBuilder({
                         checked={checked}
                         disabled={disabled}
                         onChange={(e) => {
-                            const next = e.target.checked;
+                          const next = e.target.checked;
 
-                            // ✅ If user tries to add #31, prevent and show message
-                            if (next && disableAdd) {
-                                e.preventDefault();
-                                setLimitMsg(`You can only select up to ${MAX_TICKERS} tickers. Remove one to add another.`);
-                                return;
-                            }
+                          if (next && disableAdd) {
+                            e.preventDefault();
+                            setLimitMsg(
+                              `You can only select up to ${MAX_TICKERS} tickers. Remove one to add another.`
+                            );
+                            return;
+                          }
 
-                            setLimitMsg(null);
-                            setSelected((prev) => ({ ...prev, [r.ticker]: next }));
-                            toggleTicker(r.ticker, next);
+                          setLimitMsg(null);
+                          setSelected((prev) => ({ ...prev, [r.ticker]: next }));
+                          toggleTicker(r.ticker, next);
                         }}
-                        
-
                       />
                       {busy
                         ? "…"
@@ -384,7 +523,6 @@ export default function ReportTickerBuilder({
                         : disableAdd
                         ? "Limit"
                         : "Add"}
-
                     </label>
                   </li>
                 );
