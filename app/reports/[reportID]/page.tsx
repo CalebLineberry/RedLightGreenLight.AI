@@ -32,19 +32,7 @@ function logoDevUrl(ticker: string) {
   )}?token=${encodeURIComponent(LOGO_DEV_PUBLIC_KEY)}`;
 }
 
-// --------- NEW: score mapping + color helpers ---------
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n));
-}
 
-/**
- * Convert rawScore (0..100) -> signed percent (-100..100)
- * rawScore itself is NOT changed—only the displayed value.
- */
-function scoreToSignedPercent(rawScore: number) {
-  const r = clamp(rawScore, 0, 100);
-  return (r - 50) * 2;
-}
 
 /**
  * Color ramps:
@@ -71,6 +59,57 @@ function signedPercentToColors(pct: number) {
 
   return { bg, border, text };
 }
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+
+function scoreToSignedPercent(rawScore: number) {
+  const r = clamp(rawScore, 0, 100);
+  return (r - 50) * 2; // -100..100
+}
+
+function mixRgb(
+  a: { r: number; g: number; b: number },
+  b: { r: number; g: number; b: number },
+  t: number // 0..1 (0 = a, 1 = b)
+) {
+  const tt = clamp(t, 0, 1);
+  const r = Math.round(a.r + (b.r - a.r) * tt);
+  const g = Math.round(a.g + (b.g - a.g) * tt);
+  const bb = Math.round(a.b + (b.b - a.b) * tt);
+  return { r, g, b: bb };
+}
+
+function rgbToCss(c: { r: number; g: number; b: number }) {
+  return `rgb(${c.r} ${c.g} ${c.b})`;
+}
+
+/**
+ * Blend white with green/red based on signed percent.
+ * Example: +29 => 29% green + 71% white
+ *          -29 => 29% red   + 71% white
+ */
+function signedPercentToBlendedBg(pct: number) {
+  const p = clamp(pct, -100, 100);
+  const w = { r: 255, g: 255, b: 255 };
+  const green = { r: 0, g: 160, b: 70 }; // tweak to taste
+  const red = { r: 190, g: 0, b: 40 };   // tweak to taste
+
+  const t = Math.abs(p) / 100; // 0..1
+  const target = p >= 0 ? green : red;
+
+  // Background is a blend: (1-t)*white + t*target
+  const bg = mixRgb(w, target, t);
+
+  // Border: slightly more “toward” the target so it’s visible
+  const border = mixRgb(w, target, Math.min(1, t * 1.25));
+
+  return {
+    bg: rgbToCss(bg),
+    border: rgbToCss(border),
+  };
+}
+
 // ------------------------------------------------------
 
 export default async function ReportDetailPage(props: {
@@ -121,7 +160,7 @@ export default async function ReportDetailPage(props: {
       isCustomReport={isCustomReport}
     >
       {rows.length === 0 ? (
-        <div className="rounded-2xl border p-6 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border p-6 text-center text-sm text-black">
           No tickers found for this report.
         </div>
       ) : (
@@ -129,107 +168,120 @@ export default async function ReportDetailPage(props: {
           {rows.map((t) => {
             const yh = yahooUrl(t.ticker);
             const logo = logoDevUrl(t.ticker);
-
+            
             const raw =
               Number.isFinite(t.rawScore) ? Number(t.rawScore) : null;
 
             const signed = raw === null ? null : scoreToSignedPercent(raw);
+
+            const blend =
+            signed === null ? null : signedPercentToBlendedBg(signed);
+
             const colors =
               signed === null
                 ? null
                 : signedPercentToColors(signed);
 
             return (
-              <div
-                key={t.ticker}
-                className="rounded-2xl border p-4 shadow-sm"
-                style={
-                  colors
-                    ? {
-                        backgroundColor: colors.bg,
-                        borderColor: colors.border,
-                      }
-                    : undefined
-                }
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={[
-                      "relative h-12 w-12 overflow-hidden rounded-xl",
-                      logo ? "" : "border bg-background",
-                    ].join(" ")}
-                  >
-                    {logo ? (
-                      <Image
-                        src={logo}
-                        alt={`${t.company ?? t.ticker} logo`}
-                        fill
-                        sizes="48px"
-                        className="object-contain p-1"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                        —
-                      </div>
-                    )}
-                  </div>
+  <div
+  key={t.ticker}
+  className="rounded-2xl border p-4 shadow-sm"
+  style={
+    blend
+      ? {
+          backgroundColor: blend.bg,
+          borderColor: blend.border,
+          color: "#000", // keep all text black
+        }
+      : { color: "#000" }
+  }
+>
+    <div className="flex items-start gap-3">
+      <div
+        className={[
+          "relative h-12 w-12 overflow-hidden rounded-xl",
+          logo ? "" : "border bg-background",
+        ].join(" ")}
+      >
+        {logo ? (
+          <Image
+            src={logo}
+            alt={`${t.company ?? t.ticker} logo`}
+            fill
+            sizes="48px"
+            className="object-contain p-1"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-black">
+            —
+          </div>
+        )}
+      </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold">
-                          {t.company ?? "—"}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          <span className="font-medium">{t.ticker}</span>
-                          {t.exchange ? ` • ${t.exchange}` : ""}
-                        </div>
-                      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-black">
+              {t.company ?? "—"}
+            </div>
 
-                      <Link
-                        href={yh}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="shrink-0 rounded-lg border px-2 py-1 text-xs hover:bg-accent"
-                      >
-                        Yahoo Finance
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+            {/* was text-muted-foreground */}
+            <div className="text-xs text-black">
+              <span className="font-medium text-black">{t.ticker}</span>
+              {t.exchange ? ` • ${t.exchange}` : ""}
+            </div>
+          </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-                  <div className="text-muted-foreground">Industry</div>
-                  <div className="text-right">{t.industry ?? "—"}</div>
+          <Link
+            href={yh}
+            target="_blank"
+            rel="noreferrer"
+            className="
+                shrink-0 rounded-lg border
+                border-black bg-white
+                px-2 py-1 text-xs
+                text-black
+                hover:bg-gray-100
+            "
+            >
+            Yahoo Finance
+            </Link>
 
-                  <div className="text-muted-foreground">Exchange</div>
-                  <div className="text-right">{t.exchange ?? "—"}</div>
+        </div>
+      </div>
+    </div>
 
-                  <div className="text-muted-foreground">Score</div>
-                  <div
-                    className="text-right font-semibold tabular-nums"
-                    style={colors ? { color: colors.text } : undefined}
-                    title={
-                      raw === null
-                        ? undefined
-                        : `Raw score: ${raw.toFixed(2)} (0–100)`
-                    }
-                  >
-                    {signed === null ? "—" : `${signed.toFixed(2)}%`}
-                  </div>
+    <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+      {/* labels: remove muted */}
+      <div className="text-black">Industry</div>
+      <div className="text-right text-black">{t.industry ?? "—"}</div>
 
-                  <div className="text-muted-foreground">CIK</div>
-                  <div className="text-right">{t.cik ?? "—"}</div>
+      <div className="text-black">Exchange</div>
+      <div className="text-right text-black">{t.exchange ?? "—"}</div>
 
-                  <div className="text-muted-foreground">Last sync</div>
-                  <div className="text-right">{fmtDate(t.lastSync)}</div>
-                </div>
+      <div className="text-black">Score</div>
+      <div
+        className="text-right font-semibold tabular-nums text-black"
+        title={
+          raw === null ? undefined : `Raw score: ${raw.toFixed(2)} (0–100)`
+        }
+      >
+        {signed === null ? "—" : `${signed.toFixed(2)}%`}
+      </div>
 
-                <div className="mt-3 flex justify-end">
-                  <RemoveTickerButton reportID={report.reportID} ticker={t.ticker} />
-                </div>
-              </div>
-            );
+      <div className="text-black">CIK</div>
+      <div className="text-right text-black">{t.cik ?? "—"}</div>
+
+      <div className="text-black">Last sync</div>
+      <div className="text-right text-black">{fmtDate(t.lastSync)}</div>
+    </div>
+
+    <div className="mt-3 flex justify-end">
+      <RemoveTickerButton reportID={report.reportID} ticker={t.ticker} />
+    </div>
+  </div>
+);
+
           })}
         </div>
       )}

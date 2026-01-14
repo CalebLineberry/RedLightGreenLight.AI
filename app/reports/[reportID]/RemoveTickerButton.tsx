@@ -41,8 +41,16 @@ export default function RemoveTickerButton(props: {
       type="button"
       onClick={onRemove}
       disabled={loading}
-      className="inline-flex items-center justify-center rounded-lg border border-red-500/60 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-500/10 disabled:opacity-50"
-      aria-label={`Remove ${ticker}`}
+className="
+    inline-flex items-center justify-center
+    rounded-md border
+    border-black bg-white
+    px-2 py-1
+    text-xs font-semibold
+    text-black
+    hover:bg-gray-100
+    cursor-pointer
+  "      aria-label={`Remove ${ticker}`}
       title="Remove"
     >
       {loading ? "…" : "✕"}
