@@ -1,5 +1,4 @@
 'use client';
-import MarketChart from '@/app/components/MarketChart';
 import AuthBar from "@/app/components/AuthBar";
 import Link from "next/link";
 export default function HomePage() {
@@ -33,7 +32,7 @@ export default function HomePage() {
             <ul className="nav-menu">
               <li className="menu-active"><a href="#body">Home</a></li>
               <li><a href="#about">About Us</a></li>
-              <li><a href="#services">S&P 500</a></li>
+              <li><a href="#services">Getting Started</a></li>
               {/*<li><a href="#portfolio">Portfolio</a></li>*/} 
               <li><a href="#team">Room 225</a></li>
               <li><a href="#contact">Disclamer</a></li>
@@ -50,8 +49,8 @@ export default function HomePage() {
             <br /><span>with AI</span>
           </h2>
           <div>
-            <a href="#about" className="btn-get-started scrollto">About Our Model</a>
-            <Link href="/tickers" className="btn-projects scrollto">Find Stock Values</Link>
+            <a href="#services" className="btn-get-started scrollto">Getting Started</a>
+            <Link href="/generate_reports" className="btn-projects scrollto">Reports</Link>
           </div>
         </div>
 
@@ -89,20 +88,29 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Market Ticker */}
-<section id="services">
-  <div className="container">
-    <div className="section-header">
-      <h2>S&P 500 Ticker</h2>
-    </div>
+        {/* Getting Started */}
+        <section id="services" className="wow fadeInUp">
+          <div className="container">
+            <div className="section-header">
+              <h2>How to use RedLightGreenLight.AI</h2>
+            </div>
 
-    <div className="row justify-content-center">
-      <div className="col-lg-10">
-        <MarketChart symbol="SPY" />
-      </div>
-    </div>
-  </div>
-</section>
+            <div className="row justify-content-center">
+              <div className="col-lg-10 content">
+              <h3>Step 1: Generate a Report</h3>
+              <p>Click the <Link href="/generate_reports">Reports</Link> button in the top of the page. This will take you to the report generation page.</p>
+              <h3>Step 2: Select Method of Report Creation</h3>
+              <p>Choose between an auto-generated report or a custom report. Auto-generated reports use your selected filters and requested score range to find 30 stocks that may be of interest for you. Custom reports allow you to select which specific stocks you want to analyze.</p>
+              <h3>Step 3: Watch the Predictions Come in</h3>
+              <p>Select up to two reports to be automatically updated weekly. Should new information be released from the SEC, our model will update its prediction for each stock in your report.</p>
+              <span><h3>Understanding Score</h3></span>
+              <p>Our model assigns a score to each stock based on its predicted performance. This performance is in the range of -100% to 100%
+              The lower the score, the more likely the stock value is to decrease in the future. The higher the score, the more likely the value is to increase. 
+              The closer to zero, the more uncertain the model is about its future performace.</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
 
         {/* Team */}
