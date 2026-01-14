@@ -32,16 +32,56 @@ function logoDevUrl(ticker: string) {
   )}?token=${encodeURIComponent(LOGO_DEV_PUBLIC_KEY)}`;
 }
 
+// --------- NEW: score mapping + color helpers ---------
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * Convert rawScore (0..100) -> signed percent (-100..100)
+ * rawScore itself is NOT changed—only the displayed value.
+ */
+function scoreToSignedPercent(rawScore: number) {
+  const r = clamp(rawScore, 0, 100);
+  return (r - 50) * 2;
+}
+
+/**
+ * Color ramps:
+ * -100 -> darker red
+ *  0   -> near-white
+ *  100 -> darker green
+ *
+ * We use HSL and vary saturation/lightness by magnitude.
+ */
+function signedPercentToColors(pct: number) {
+  const p = clamp(pct, -100, 100);
+  const t = Math.abs(p) / 100; // 0..1
+  const hue = p >= 0 ? 120 : 0; // green or red
+
+  // Near 0 => low saturation + high lightness (whiter)
+  // Near extremes => higher saturation + lower lightness (darker)
+  const sat = 5 + t * 85; // 5%..90%
+  const light = 96 - t * 42; // 96%..54%
+
+  // Subtle fills (works in dark mode too because alpha is low)
+  const bg = `hsla(${hue} ${sat}% ${light}% / 0.18)`;
+  const border = `hsla(${hue} ${sat}% ${light}% / 0.45)`;
+  const text = `hsl(${hue} ${sat}% ${light - 10}%)`;
+
+  return { bg, border, text };
+}
+// ------------------------------------------------------
+
 export default async function ReportDetailPage(props: {
   params: Promise<{ reportID: string }>;
 }) {
   const { userId } = await auth();
-  if (!userId) notFound(); // middleware should redirect anyway, but this prevents leakage
+  if (!userId) notFound();
 
   const { reportID } = await props.params;
   if (!reportID) notFound();
 
-  // ✅ Only fetch if this report belongs to this user
   const reportRow = await db
     .select({
       reportID: reports.reportID,
@@ -75,7 +115,11 @@ export default async function ReportDetailPage(props: {
   const isCustomReport = title.toLowerCase().includes("custom");
 
   return (
-    <ReportDetailShell title={title} reportID={report.reportID} isCustomReport={isCustomReport}>
+    <ReportDetailShell
+      title={title}
+      reportID={report.reportID}
+      isCustomReport={isCustomReport}
+    >
       {rows.length === 0 ? (
         <div className="rounded-2xl border p-6 text-center text-sm text-muted-foreground">
           No tickers found for this report.
@@ -86,8 +130,28 @@ export default async function ReportDetailPage(props: {
             const yh = yahooUrl(t.ticker);
             const logo = logoDevUrl(t.ticker);
 
+            const raw =
+              Number.isFinite(t.rawScore) ? Number(t.rawScore) : null;
+
+            const signed = raw === null ? null : scoreToSignedPercent(raw);
+            const colors =
+              signed === null
+                ? null
+                : signedPercentToColors(signed);
+
             return (
-              <div key={t.ticker} className="rounded-2xl border bg-card p-4 shadow-sm">
+              <div
+                key={t.ticker}
+                className="rounded-2xl border p-4 shadow-sm"
+                style={
+                  colors
+                    ? {
+                        backgroundColor: colors.bg,
+                        borderColor: colors.border,
+                      }
+                    : undefined
+                }
+              >
                 <div className="flex items-start gap-3">
                   <div
                     className={[
@@ -113,7 +177,9 @@ export default async function ReportDetailPage(props: {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold">{t.company ?? "—"}</div>
+                        <div className="truncate text-sm font-semibold">
+                          {t.company ?? "—"}
+                        </div>
                         <div className="text-xs text-muted-foreground">
                           <span className="font-medium">{t.ticker}</span>
                           {t.exchange ? ` • ${t.exchange}` : ""}
@@ -139,9 +205,17 @@ export default async function ReportDetailPage(props: {
                   <div className="text-muted-foreground">Exchange</div>
                   <div className="text-right">{t.exchange ?? "—"}</div>
 
-                  <div className="text-muted-foreground">Raw score</div>
-                  <div className="text-right">
-                    {Number.isFinite(t.rawScore) ? Number(t.rawScore).toFixed(4) : "—"}
+                  <div className="text-muted-foreground">Score</div>
+                  <div
+                    className="text-right font-semibold tabular-nums"
+                    style={colors ? { color: colors.text } : undefined}
+                    title={
+                      raw === null
+                        ? undefined
+                        : `Raw score: ${raw.toFixed(2)} (0–100)`
+                    }
+                  >
+                    {signed === null ? "—" : `${signed.toFixed(2)}%`}
                   </div>
 
                   <div className="text-muted-foreground">CIK</div>
