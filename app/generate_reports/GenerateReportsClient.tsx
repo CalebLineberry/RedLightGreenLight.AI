@@ -324,12 +324,26 @@ const [trackedSelected, setTrackedSelected] = useState<Set<string>>(initialTrack
                     onChange={() => {
                       setDeleteSelected((prev) => {
                         const next = new Set(prev);
-                        next.has(r.id) ? next.delete(r.id) : next.add(r.id);
+                        const willBeSelectedForDelete = !next.has(r.id);
+
+                        if (willBeSelectedForDelete) next.add(r.id);
+                        else next.delete(r.id);
+
+                        // If we just marked it for delete, ensure it's not tracked
+                        if (willBeSelectedForDelete) {
+                          setTrackedSelected((prevTracked) => {
+                            const nextTracked = new Set(prevTracked);
+                            nextTracked.delete(r.id);
+                            return nextTracked;
+                          });
+                        }
+
                         return next;
                       });
                     }}
                     onClick={(e) => e.stopPropagation()}
                   />
+
                   Delete
                 </label>
 
@@ -344,20 +358,31 @@ const [trackedSelected, setTrackedSelected] = useState<Set<string>>(initialTrack
                   <input
                     type="checkbox"
                     checked={isTrackedChecked}
-                    disabled={trackDisabled}
+                    disabled={isDeleteChecked || (!isTrackedChecked && trackedSelected.size >= 2)}
                     onChange={() => {
-                      setTrackedSelected((prev) => {
-                        const next = new Set(prev);
+                      setTrackedSelected((prevTracked) => {
+                        // If this report is marked for delete, never allow tracking it
+                        if (deleteSelected.has(r.id)) {
+                          return prevTracked;
+                        }
+
+                        const next = new Set(prevTracked);
+
                         if (next.has(r.id)) {
                           next.delete(r.id);
                           return next;
                         }
-                        if (next.size >= 2) return next;
+
+                        if (next.size >= 2) {
+                          return next;
+                        }
+
                         next.add(r.id);
                         return next;
                       });
                     }}
                     onClick={(e) => e.stopPropagation()}
+
                   />
                   Track
                 </label>
