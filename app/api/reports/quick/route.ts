@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { reports, tickers, reportedTickers } from "@/db/schema";
+import { reports, tickers, reportedTickers, users } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 
 function cleanNA(v: FormDataEntryValue | null): string | null {
@@ -25,6 +25,19 @@ export async function POST(req: Request) {
     // return NextResponse.redirect(new URL("/sign-in", req.url));
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const client = await clerkClient();
+  const u = await client.users.getUser(userId);
+    const email =
+    u.emailAddresses?.find((e) => e.id === u.primaryEmailAddressId)?.emailAddress ??
+    u.emailAddresses?.[0]?.emailAddress;
+
+    if (!email) return NextResponse.json({ error: "No email found for user" }, { status: 400 });
+
+await db.insert(users).values({ id: userId, email }).onConflictDoUpdate({
+  target: users.id,
+  set: { email },
+});
 
   const form = await req.formData();
 
