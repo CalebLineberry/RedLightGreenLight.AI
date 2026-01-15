@@ -69,6 +69,7 @@ export default function HomePage() {
           <div className="container">
             <div className="row justify-content-center">
         <h1 className="text-center pt-5">**The model is in the process of being trained**<br />Until then predictions will be unavailable</h1>
+          <p className="text-center">We are <strong>very</strong> limited on computational resources.<br />Until our funding is increased, our predictions will be slowly added to the site.</p>
             </div>
           </div>
 
