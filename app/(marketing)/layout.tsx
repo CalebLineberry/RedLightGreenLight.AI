@@ -8,6 +8,7 @@ import "../../public/lib/ionicons/css/ionicons.min.css";
 import "../../public/lib/owlcarousel/assets/owl.carousel.min.css";
 import "../../public/lib/magnific-popup/magnific-popup.css";
 import "../../public/css/marketing.css";
+import OwlInit from "./OwlInit";
 //import "../../js/main.js"; // optional: if you convert it to module
 
 
@@ -26,7 +27,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       <Script src="/lib/magnific-popup/magnific-popup.min.js" strategy="afterInteractive" />
       <Script src="/lib/sticky/sticky.js" strategy="afterInteractive" />
       <Script src="/js/main.js" strategy="afterInteractive" />
-
+      <OwlInit />
       <main>{children}</main>
     </>
   );

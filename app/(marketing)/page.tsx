@@ -66,12 +66,18 @@ export default function HomePage() {
       </section>
 
       <main id="main">
+          <div className="container">
+            <div className="row justify-content-center">
+        <h1 className="text-center pt-5">**The model is in the process of being trained**<br />Until then predictions will be unavailable</h1>
+            </div>
+          </div>
+
         {/* About */}
         <section id="about" className="wow fadeInUp">
           <div className="container">
             <div className="row">
               <div className="col-lg-6 about-img">
-                <img src="/img/about-img.jpg" alt="" />
+                <img src="/img/img-10.png" alt="" />
               </div>
               <div className="col-lg-6 content">
                 <h2>Don't overthink it. <br/>(That's our job).</h2>
@@ -137,12 +143,12 @@ export default function HomePage() {
                       <span>
                       <a
                           href={member.GitHub}
-                          style={{ borderRight: '1px solid #09031C', paddingRight: '10px', marginRight: '10px', color: '#09031C' }}
+                          style={{ borderRight: '1px solid #1d7e0d', paddingRight: '10px', marginRight: '10px', color: '#1d7e0d' }}
                         >
                           <i className="fa fa-github"></i>
                       </a>
 
-                      <a href={member.LinkedIn} style={{ color: '#09031C' }}>
+                      <a href={member.LinkedIn} style={{ color: '#1d7e0d' }}>
                           <i className="fa fa-linkedin"></i>
                       </a>
                       </span>
