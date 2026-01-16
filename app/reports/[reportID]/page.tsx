@@ -199,7 +199,7 @@ export default async function ReportDetailPage(props: {
     <div className="flex items-start gap-3">
       <div
         className={[
-          "relative h-12 w-12 overflow-hidden rounded-xl",
+          "relative h-12 w-12 overflow-hidden rounded-md bg-background rounded-md",
           logo ? "" : "border bg-background",
         ].join(" ")}
       >
@@ -233,19 +233,19 @@ export default async function ReportDetailPage(props: {
           </div>
 
           <Link
-            href={yh}
-            target="_blank"
-            rel="noreferrer"
-            className="
-                shrink-0 rounded-lg border
-                border-black bg-white
-                px-2 py-1 text-xs
-                text-black
-                hover:bg-gray-100
-            "
-            >
-            Yahoo Finance
-            </Link>
+        href={yh}
+        target="_blank"
+        rel="noreferrer"
+        className="
+            shrink-0 rounded-lg border
+            border-black bg-white
+            px-2 py-1 text-xs
+            text-black
+            hover:bg-gray-100
+        "
+        >
+        Yahoo Finance
+        </Link>
 
         </div>
       </div>
