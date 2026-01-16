@@ -6,31 +6,118 @@ import { eq, inArray, sql } from "drizzle-orm";
 
 async function fetchTrackedTickers() {
   const rows = await db
-    .selectDistinct({ ticker: reportedTickers.tickerSymbol })
+    .selectDistinct({
+      ticker: tickers.ticker,
+      cik: tickers.cik,
+      lastSync: tickers.lastSync,
+    })
     .from(trackedReports)
-    .innerJoin(reportedTickers, eq(reportedTickers.reportID, trackedReports.reportID));
+    .innerJoin(
+      reportedTickers,
+      eq(reportedTickers.reportID, trackedReports.reportID)
+    )
+    .innerJoin(
+      tickers,
+      eq(tickers.ticker, reportedTickers.tickerSymbol)
+    );
 
-
-  return rows.map((r) => r.ticker).filter(Boolean);
+  return rows.map((r) => ({
+    ticker: r.ticker,
+    cik: r.cik,
+    // Formats the Date object to MM/DD/YYYY string
+    lastSync: r.lastSync 
+      ? new Intl.DateTimeFormat('en-US').format(new Date(r.lastSync)) 
+      : null,
+  })).filter(row => row.ticker && row.cik); 
 }
 
-async function checkStocks(symbols: string[]) {
-  const response = await fetch("https://api.huggingface.co/first-endpoint", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.HF_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ symbols }),
-  });
+type TickerData = {
+  ticker: string;
+  cik: string;
+  lastSync: string | null;
+};
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`HF check endpoint failed: ${response.status} ${text}`);
+// Helper to pause execution
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function checkStocks(tickerData: TickerData[]): Promise<string[]> {
+  const BASE_URL = "https://umwroom225-tokenizer.hf.space";
+  const HF_TOKEN = process.env.HF_TOKEN;
+
+  const headers = { Authorization: `Bearer ${HF_TOKEN}` };
+
+  try {
+    // --- STEP 1: REQUEST UPGRADE ---
+    console.log("Requesting hardware upgrade...");
+    const upgradeRes = await fetch(`${BASE_URL}/upgradeTS`, { headers });
+    if (!upgradeRes.ok) throw new Error("Upgrade request failed");
+
+    // --- STEP 2: POLL UNTIL READY (The new logic) ---
+    console.log("Waiting for Space to restart on new hardware...");
+    
+    let attempts = 0;
+    const maxAttempts = 30; // 30 * 10s = 5 minutes max wait
+    let ready = false;
+
+    while (attempts < maxAttempts) {
+      try {
+        // We wait 10 seconds between checks to give the container time to boot
+        await sleep(10000); 
+
+        const statusRes = await fetch(`${BASE_URL}/`, { headers });
+        
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          console.log(`Current Status: ${status.stage} on ${status.hardware}`);
+
+          // We check for BOTH "RUNNING" stage and the correct hardware
+          // Note: "cpu-upgrade" is the identifier for the upgraded CPU tier
+          if (status.stage === "RUNNING" && status.hardware === "cpu-upgrade") {
+            ready = true;
+            break; 
+          }
+        }
+      } catch (err) {
+        // Fetch errors are expected while the container is down/restarting
+        console.log("Space unreachable, retrying...");
+      }
+      attempts++;
+    }
+
+    if (!ready) {
+      throw new Error("Timeout: Space failed to restart on upgraded hardware.");
+    }
+
+    // --- STEP 3: TOKENIZE ---
+    console.log("Hardware ready. Sending tickers...");
+    const jsonString = JSON.stringify(tickerData);
+    const encodedParams = new URLSearchParams({ jsonTickers: jsonString });
+
+    const tokenRes = await fetch(`${BASE_URL}/tokenize?${encodedParams}`, {
+      method: "GET",
+      headers,
+    });
+
+    if (!tokenRes.ok) {
+      throw new Error(`Tokenize failed: ${tokenRes.status}`);
+    }
+
+	// Importantly the endpoint creates a set of tickers to actually update, it is returned as json to this typescript
+    return await tokenRes.json();
+
+  } catch (error) {
+    console.error("Error in checkStocks workflow:", error);
+    throw error;
+
+  } finally {
+    // --- STEP 4: DOWNGRADE (Always runs) ---
+    console.log("Requesting hardware downgrade...");
+    try {
+      await fetch(`${BASE_URL}/downgradeTS`, { headers });
+    } catch (e) {
+      console.error("CRITICAL: Failed to downgrade hardware!", e);
+    }
   }
-
-  const data = await response.json();
-  return data.result as number; // 1 or 0
 }
 
 async function getStockScores(symbols: string[]) {
