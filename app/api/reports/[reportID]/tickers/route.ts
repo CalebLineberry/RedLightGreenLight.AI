@@ -4,6 +4,9 @@ import { db } from "@/db";
 import { reports, reportedTickers } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 
+export const runtime = "nodejs";
+
+
 type Ctx = { params: Promise<{ reportID: string }> };
 
 const MAX_TICKERS = 30;

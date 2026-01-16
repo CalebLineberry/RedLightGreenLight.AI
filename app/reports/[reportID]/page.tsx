@@ -266,7 +266,7 @@ export default async function ReportDetailPage(props: {
           raw === null ? undefined : `Raw score: ${raw.toFixed(2)} (0–100)`
         }
       >
-        {signed === null ? "—" : `${signed.toFixed(2)}%`}
+        {signed === null ? "—" : `${signed.toFixed(2)}`}
       </div>
 
       <div className="text-black">CIK</div>
