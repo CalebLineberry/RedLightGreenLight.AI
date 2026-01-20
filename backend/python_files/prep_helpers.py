@@ -6,16 +6,12 @@ import logging
 import warnings
 from torch.utils.data import Dataset,DataLoader,random_split
 from pathlib import Path
-from transformers import AutoModel
 import re
 from tqdm import tqdm
 from transformers import AutoModel
 from torch.utils.data import Subset
 import torch
 import torch.nn as nn
-import logging
-import warnings
-
 warnings.filterwarnings("ignore", module="yfinance")
 logging.getLogger("yfinance.utils").setLevel(logging.CRITICAL)
 logging.getLogger("yfinance.base").setLevel(logging.CRITICAL)
@@ -68,6 +64,10 @@ def tokenize_data(dirPath,saveDirPath,tokenizer,max_length,overwrite=False,skip 
         with open(path.resolve()) as f:
           txt = f.read()
           docs = re.split(r"\n\[EOD\]\n" , txt)
+          #skips really small ones
+          if len(docs) < 4:
+            continue
+
           docs.pop()
           pos = 0
           loader = DataLoader(docs , batch_size = tokenize_batch_size)
@@ -86,6 +86,9 @@ def tokenize_data(dirPath,saveDirPath,tokenizer,max_length,overwrite=False,skip 
           txt = f.read()
           ds = txt.split("\n")
           ds.pop()
+          #skips really small ones
+          if len(ds) < 4:
+            continue
           ds = np.array(ds)
           np.save(saveDirPath + f"{ticker}/dates.npy",ds)
           del ds
@@ -280,7 +283,7 @@ def arrange_data(dirPath,max_seq_len,max_cum_length = None,valid = []):
         np.save(str(path) + f"/targets.npy" , np.array(y))
         np.save(str(path) + f"/maxYears.npy" , np.array(maxYears))
         pbar.update(1)
-    
+
 def validate_before_targets(dirPath):
   dir = Path(dirPath)
   numDirs = sum(1 for f in dir.iterdir() if f.is_dir())
@@ -307,7 +310,7 @@ def validate_before_targets(dirPath):
       pbar.update(1)
 
   np.save(dirPath + f"validTickers.npy" , np.array(valid))
-  np.save(dirPath + f"invalidTickers.npy" , np.array(valid))
+  np.save(dirPath + f"invalidTickers.npy" , np.array(invalid))
   return valid
 
 def cleanup(dirPath):
@@ -417,7 +420,7 @@ class DirDataset(Dataset):
     yr = np.load(str(self.dir) + f"/{ticker}/maxYears.npy")[indx]
     target = np.load(str(self.dir) + f"/{ticker}/targets.npy")[indx]
     return (ticker,yr,target)
-  
+
 def train_test_split(data, trainPercent = 0.8 , yearLimit = None):
 
   if yearLimit is None:
@@ -449,3 +452,5 @@ def get_params():
             params.append(name)
   params = params[18:]
   return params
+  
+  

@@ -1,14 +1,8 @@
-import logging
-import warnings
 import re
-from transformers import AutoTokenizer
 import torch
-import logging
-import warnings
 import json
-warnings.filterwarnings("ignore", module="yfinance")
-logging.getLogger("yfinance.utils").setLevel(logging.CRITICAL)
-logging.getLogger("yfinance.base").setLevel(logging.CRITICAL)
+from transformers import AutoTokenizer
+
 
 class LSTMT_Tokenizer():
 
@@ -77,11 +71,7 @@ class LSTMT_Tokenizer():
 
   def save(self, save_dir):
 
-    # Save the Hugging Face tokenizer
     self.baseTokenizer.save_pretrained(save_dir)
-
-    # Save custom config (context_window) to a JSON
-    import json
     config = {"context_window": self.context_window}
     with open(f"{save_dir}/custom_config.json", "w") as f:
         json.dump(config, f)

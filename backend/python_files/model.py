@@ -8,7 +8,6 @@ import torch._dynamo
 from transformers.modeling_outputs import ModelOutput
 from dataclasses import dataclass
 from typing import Optional
-from peft import LoraConfig, get_peft_model
 
 @dataclass
 class LSTMTOutput(ModelOutput):
@@ -27,7 +26,6 @@ class LSTMTConfig(PretrainedConfig):
       self.lora_rank = lora_rank
       self.lora_target_modules = lora_target_modules or []
     
-
 class LSTM_T(PreTrainedModel):
   config_class = LSTMTConfig
   base_model_prefix = "lstm_t"
@@ -185,10 +183,10 @@ class FullModel(PreTrainedModel):
     d = self.lstmT.d
 
     #feed forward network
-    self.layer1 = nn.Linear(in_features=self.lstmT.d , out_features=self.lstmT.d // 8,dtype=torch.float16)
-    self.layer2 = nn.Linear(in_features=self.lstmT.d // 8, out_features=self.lstmT.d // 16,dtype=torch.float16)
-    self.layer3 = nn.Linear(in_features=self.lstmT.d // 16, out_features=self.lstmT.d // 32,dtype=torch.float16)
-    self.layer4 = nn.Linear(in_features=self.lstmT.d // 32, out_features=1,dtype=torch.float16)
+    self.layer1 = nn.Linear(in_features=self.lstmT.d , out_features=self.lstmT.d // 8,dtype=torch.float32)
+    self.layer2 = nn.Linear(in_features=self.lstmT.d // 8, out_features=self.lstmT.d // 16,dtype=torch.float32)
+    self.layer3 = nn.Linear(in_features=self.lstmT.d // 16, out_features=self.lstmT.d // 32,dtype=torch.float32)
+    self.layer4 = nn.Linear(in_features=self.lstmT.d // 32, out_features=1,dtype=torch.float32)
     self.actFunc = nn.LeakyReLU(0.1)
     self.dropout = nn.Dropout(p=0.3)
 
@@ -197,7 +195,7 @@ class FullModel(PreTrainedModel):
   @torch._dynamo.disable
   def forward(self,input_ids = None, attention_mask = None, document_mask = None, labels =  None, **kwargs):
     output = self.lstmT(input_ids = input_ids , attention_mask = attention_mask , document_mask = document_mask,labels=None).hidden_state
-    output = output.squeeze(-1)
+    output = output.squeeze(-1).float()
 
     output = self.layer1(output)
     output = self.actFunc(output)

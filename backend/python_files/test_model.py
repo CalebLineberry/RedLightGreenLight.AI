@@ -2,6 +2,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import torch
 
+
 def test_model(model,testingData,batch_size,file_path = None):
   loader = DataLoader(testingData,batch_size = batch_size)
 
