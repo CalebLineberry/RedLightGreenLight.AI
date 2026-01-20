@@ -120,25 +120,94 @@ async function checkStocks(tickerData: TickerData[]): Promise<string[]> {
   }
 }
 
-async function getStockScores(symbols: string[]) {
-  const response = await fetch("https://api.huggingface.co/second-endpoint", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.HF_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ symbols }),
-  });
+async function getStockScores(symbols: string[]): Promise<number[]> {
+  const BASE_URL = "https://umwroom225-model.hf.space";
+  const HF_TOKEN = process.env.HF_TOKEN;
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`HF scores endpoint failed: ${response.status} ${text}`);
+  const headers = {
+    Authorization: `Bearer ${HF_TOKEN}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    // --- STEP 1: UPGRADE HARDWARE ---
+    // Note: Verify if your Python endpoint is named '/upgradeModel', '/upgrade', etc.
+    console.log("Requesting Model Space upgrade...");
+    const upgradeRes = await fetch(`${BASE_URL}/upgradeModel`, { 
+        method: "GET", 
+        headers: { Authorization: `Bearer ${HF_TOKEN}` } 
+    });
+    
+    if (!upgradeRes.ok) {
+       // Optional: Log but don't crash if it's already upgraded? 
+       // For now, we throw error to be safe.
+       throw new Error(`Model upgrade failed: ${upgradeRes.status}`);
+    }
+
+    // --- STEP 2: POLL UNTIL RUNNING ---
+    console.log("Waiting for Model Space to restart...");
+    let attempts = 0;
+    let ready = false;
+
+    while (attempts < 30) { // 5 minutes max
+      await sleep(10000); 
+      try {
+        const statusRes = await fetch(`${BASE_URL}/`, { 
+            method: "GET", 
+            headers: { Authorization: `Bearer ${HF_TOKEN}` } 
+        });
+
+        if (statusRes.ok) {
+          const status = await statusRes.json();
+          // Adjust 'gpu-medium' or 'gpu-small' to match your actual hardware target
+          if (status.stage === "RUNNING" && status.hardware === "gpu-medium") {
+            ready = true;
+            break;
+          }
+        }
+      } catch (e) {
+        console.log("Model Space unreachable, retrying...");
+      }
+      attempts++;
+    }
+
+    if (!ready) throw new Error("Timeout: Model Space failed to restart.");
+
+    // --- STEP 3: RUN INFERENCE ---
+    console.log("Hardware ready. Fetching scores...");
+    
+    // Using the POST method as defined in your original snippet
+    const response = await fetch(`${BASE_URL}/predict`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tickers: symbols }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`HF scores endpoint failed: ${response.status} ${text}`);
+    }
+
+    const data = await response.json();
+    return data.scores as number[];
+
+  } catch (error) {
+    console.error("Error in getStockScores:", error);
+    throw error;
+
+  } finally {
+    // --- STEP 4: DOWNGRADE HARDWARE ---
+    console.log("Downgrading Model Space...");
+    try {
+        await fetch(`${BASE_URL}/downgradeModel`, { 
+            method: "GET", 
+            headers: { Authorization: `Bearer ${HF_TOKEN}` } 
+        });
+    } catch (e) {
+        console.error("CRITICAL: Failed to downgrade Model Space!", e);
+    }
   }
-
-  const data = await response.json();
-  return data.scores as number[]; // array of floats
 }
-
 
 async function updateStockScores(symbols: string[], scores: number[]) {
   if (symbols.length !== scores.length) {
