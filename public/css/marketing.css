@@ -1138,3 +1138,7 @@ body.mobile-nav-active #mobile-nav-toggle {
   border-radius: 8px;
   overflow: hidden;
 }
+
+.text-green{
+  color: #0F4314;
+}

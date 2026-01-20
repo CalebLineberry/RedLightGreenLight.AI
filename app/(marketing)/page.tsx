@@ -30,7 +30,7 @@ export default function HomePage() {
 
           <nav id="nav-menu-container">
             <ul className="nav-menu">
-              <li className="menu-active"><a href="#body">Home</a></li>
+              <li className="text-green"><Link href="/generate_reports">Reports</Link></li>
               <li><a href="#about">About Us</a></li>
               <li><a href="#services">Getting Started</a></li>
               {/*<li><a href="#portfolio">Portfolio</a></li>*/} 
@@ -128,11 +128,12 @@ export default function HomePage() {
             </div>
             <div className="row">
               {[
-                { name: 'Garrett McKenzie', role: 'AI Architect', img: 'team-1.png', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
-                { name: 'Ethan Bostick', role: 'AI Architect', img: 'team-2.png', GitHub: 'https://github.com/EthanBostick', LinkedIn: 'https://www.linkedin.com/in/ethan-bostick-466717378/' },
+                { name: 'Garrett McKenzie', role: 'Data Scientist', img: 'team-1.png', GitHub: 'https://github.com/Garrett-Mckenzie', LinkedIn: 'https://www.linkedin.com/in/garrett-mckenzie-09b6242b3/' },
+                { name: 'Ethan Bostick', role: 'Data Scientist', img: 'team-2.png', GitHub: 'https://github.com/EthanBostick', LinkedIn: 'https://www.linkedin.com/in/ethan-bostick-466717378/' },
                 { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.png', GitHub: 'https://github.com/CalebLineberry', LinkedIn: 'https://www.linkedin.com/in/caleb-lineberry/'  },
+                { name: 'Landon Gaboury', role: 'Business Developer', img: 'team-4.png', LinkedIn: 'https://www.linkedin.com/in/landon-gaboury/'  },
               ].map(member => (
-                <div key={member.name} className="col-lg-4 col-md-6">
+                <div key={member.name} className="col-lg-3 col-md-5">
                   <div className="member">
                     <div className="pic">
                       <img src={`/img/${member.img}`} alt={member.name} />
@@ -142,12 +143,14 @@ export default function HomePage() {
                       <span>{member.role}</span>
                       
                       <span>
+                        {member.GitHub && (
                       <a
                           href={member.GitHub}
                           style={{ borderRight: '1px solid #1d7e0d', paddingRight: '10px', marginRight: '10px', color: '#1d7e0d' }}
                         >
                           <i className="fa fa-github"></i>
                       </a>
+                      )}
 
                       <a href={member.LinkedIn} style={{ color: '#1d7e0d' }}>
                           <i className="fa fa-linkedin"></i>
@@ -180,6 +183,11 @@ export default function HomePage() {
         <div className="container">
           <div className="copyright">
             &copy; Copyright <strong>Room 225</strong>. All Rights Reserved
+          </div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="col-lg-10 content text-center">
+          <Link href="/legal/RLGLPrivacyPolicy.pdf" target="_blank" rel="noreferrer">Privacy Policy</Link> | <Link href="/legal/RLGLTOS.pdf" target="_blank" rel="noreferrer">Terms of Service</Link>
           </div>
         </div>
       </footer>
