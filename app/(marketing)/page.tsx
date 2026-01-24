@@ -133,7 +133,7 @@ export default function HomePage() {
                 { name: 'Caleb Lineberry', role: 'Full-Stack Developer', img: 'team-3.png', GitHub: 'https://github.com/CalebLineberry', LinkedIn: 'https://www.linkedin.com/in/caleb-lineberry/'  },
                 { name: 'Landon Gaboury', role: 'Business Developer', img: 'team-4.png', LinkedIn: 'https://www.linkedin.com/in/landon-gaboury/'  },
               ].map(member => (
-                <div key={member.name} className="col-lg-3 col-md-5">
+                <div key={member.name} className="col-lg-3 col-md-5 d-flex align-items-stretch">
                   <div className="member">
                     <div className="pic">
                       <img src={`/img/${member.img}`} alt={member.name} />
