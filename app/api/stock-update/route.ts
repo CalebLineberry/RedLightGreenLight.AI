@@ -85,22 +85,15 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 async function waitUntilTokenizerReady(
   baseUrl: string,
   headers: Record<string, string>,
-  probeData: TickerData[]
 ) {
-  const maxAttempts = 60; // 10 minutes (60 * 10s)
+  const maxAttempts = 60; // 10 minutes
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     await sleep(10_000);
 
     try {
-      const res = await fetch(`${baseUrl}/`, {
-        method: "POST",
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        // small payload probe
-        body: JSON.stringify({ tickers: probeData.slice(0, 5) }),
+      const res = await fetch(`${baseUrl}/health`, {
+        method: "GET",
+        headers: { ...headers, Accept: "application/json" },
       });
 
       const text = await res.text().catch(() => "");
@@ -108,20 +101,19 @@ async function waitUntilTokenizerReady(
         `[tokenizer probe ${attempt}/${maxAttempts}] status=${res.status} body=${text.slice(0, 120)}`
       );
 
-      // If endpoint is alive and accepting requests, we’re ready
       if (res.ok) return;
 
-      // If it returns a clear auth error, don’t keep waiting
       if (res.status === 401 || res.status === 403) {
         throw new Error(`Tokenizer auth failed: ${res.status} ${text}`);
       }
-    } catch (e) {
+    } catch {
       console.log(`[tokenizer probe ${attempt}/${maxAttempts}] unreachable`);
     }
   }
 
   throw new Error("Timeout: tokenizer never became ready.");
 }
+
 
 async function waitUntilModelReady(
   baseUrl: string,
@@ -163,67 +155,55 @@ async function waitUntilModelReady(
 async function checkStocks(tickerData: TickerData[]): Promise<string[]> {
   const BASE_URL = "https://umwroom225-tokenizer.hf.space";
   const HF_TOKEN = process.env.HF_TOKEN;
+  if (!HF_TOKEN) throw new Error("Missing HF_TOKEN env var");
 
   const headers = { Authorization: `Bearer ${HF_TOKEN}` };
 
   try {
-    // --- STEP 1: REQUEST UPGRADE ---
     console.log("Requesting hardware upgrade...");
     const upgradeRes = await fetch(`${BASE_URL}/upgradeTS`, {
-  method: "POST", // <- important if you switched to POST
-  headers: {
-    ...headers,
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  },
-  // body: JSON.stringify({}) // only if your endpoint expects a body
-});
+      method: "POST",
+      headers: { ...headers, Accept: "application/json" },
+    });
 
-if (!upgradeRes.ok) {
-  const text = await upgradeRes.text().catch(() => "");
-  throw new Error(`Upgrade request failed: ${upgradeRes.status} ${text}`);
-}
+    const upgradeText = await upgradeRes.text().catch(() => "");
+    if (!upgradeRes.ok) {
+      throw new Error(`Upgrade request failed: ${upgradeRes.status} ${upgradeText}`);
+    }
 
+    console.log("Waiting for Space to restart (probing /health)...");
+    await waitUntilTokenizerReady(BASE_URL, headers);
 
-    // --- STEP 2: POLL UNTIL READY (The new logic) ---
-   console.log("Waiting for Space to restart on new hardware (probing /tokenize)...");
-  await waitUntilTokenizerReady(BASE_URL, headers, tickerData);
-
-
-    // --- STEP 3: TOKENIZE (POST) ---
-console.log("Hardware ready. Sending tickers...");
-
-const tokenRes = await fetch(`${BASE_URL}/tokenize`, {
+    console.log("Hardware ready. Sending tickers...");
+    const tokenRes = await fetch(`${BASE_URL}/tokenize`, {
   method: "POST",
   headers: {
     ...headers,
     "Content-Type": "application/json",
+    Accept: "application/json",
   },
-  body: JSON.stringify({ tickers: tickerData }), // <= name can be whatever your HF expects
+  body: JSON.stringify(tickerData), // <-- send the array directly
 });
 
-if (!tokenRes.ok) {
-  const text = await tokenRes.text().catch(() => "");
-  throw new Error(`Tokenize failed: ${tokenRes.status} ${text}`);
+
+    const tickersToUpdate = await tokenRes.json();
+if (!Array.isArray(tickersToUpdate)) {
+  throw new Error(`Unexpected tokenizer response: ${JSON.stringify(tickersToUpdate).slice(0,200)}`);
 }
 
-// If tokenizer returns a JSON string of tickers (ex: "\"[\\\"AAPL\\\",\\\"MSFT\\\"]\"")
-const rawText = await tokenRes.text();
+  return tickersToUpdate;
 
-// Parse into string[]
-const tickersToUpdate = parseTickersFromJsonString(rawText);
-
-return tickersToUpdate;
   } finally {
-    // --- STEP 4: DOWNGRADE (Always runs) ---
     console.log("Requesting hardware downgrade...");
     try {
-      await fetch(`${BASE_URL}/downgradeTS`, { headers });
+      await fetch(`${BASE_URL}/downgradeTS`, { method: "POST", headers });
+
     } catch (e) {
       console.error("CRITICAL: Failed to downgrade hardware!", e);
     }
   }
 }
+
 
 async function getStockScores(symbols: string[]): Promise<number[]> {
   const BASE_URL = "https://umwroom225-model.hf.space";
